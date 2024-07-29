@@ -71,3 +71,36 @@ class CheckSession(Resource):
             return user.to_dict(), 201
         else:
             return {"error": "Unauthorized"}, 401
+        
+class Login(Resource):
+    def post(self):
+        data = request.get_json()
+
+        if 'username' not in data or 'password' not in data:
+            return {'error': 'Username and password are required'}, 422
+
+        username = data['username']
+        password = data['password']
+
+        if 'username' not in data or 'password' not in data:
+            return {'error' : 'Username, email, password are required.'}
+        
+        user = User.query.filter(User.username == username).first()
+
+        if not user:
+            return {'error' : 'Username does not exist'}, 404
+        
+        if user:
+            if user.authenticate(password): 
+                session['user_id'] = user.id
+                return user.to_dict(), 200
+
+        return {'error': 'Invalid username or password'}, 401
+
+class Logout(Resource):
+    def delete(self):
+        if 'user_id' in session and session['user_id']:
+            session['user_id'] = None
+            return {'message': 'Logged out successfully'}, 204
+        else:
+            return {'error': 'Unauthorized'}, 401
