@@ -46,3 +46,35 @@ class User(db.Model, SerializerMixin):
         if not re.search(r'[@$!%*?&#]', password):
             raise ValueError('Password must contain at least one special character (@$!%*?&#)')
         return password
+    
+    @hybrid_property
+    def password_hash(self):
+        raise AttributeError('Password hashes may not be viewed.')
+
+    @password_hash.setter
+    def password_hash(self, password):
+        self._password_hash = bcrypt.generate_password_hash(password.encode('utf-8')).decode('utf-8')
+
+    def authenticate(self, password):
+        return bcrypt.check_password_hash(self._password_hash, password.encode('utf-8'))
+
+    def update_password(self, new_password):
+        self.password_hash = new_password 
+        db.session.commit()
+
+    def update_username(self, new_username):
+        if User.query.filter_by(username=new_username).first():
+            raise ValueError('Username already exists')
+        self.username = new_username
+        db.session.commit()
+
+    def update_email(self, new_email):
+        if User.query.filter_by(email=new_email).first():
+            raise ValueError('Email already exists')
+        if not re.match(r'^[^@]+@[^@]+\.[^@]+$', new_email):
+            raise ValueError('Invalid email format')
+        self.email = new_email
+        db.session.commit()
+
+    def __repr__(self):
+        return f'ID: {self.id}, User: {self.username}, Email: {self.email}'
