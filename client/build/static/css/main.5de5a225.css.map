@@ -1,0 +1,1 @@
+{"version":3,"file":"static/css/main.5de5a225.css","mappings":"AAAA,MACI,YAAa,CACb,aAAc,CACd,cAAe,CACf,gBACF","sources":["index.css"],"sourcesContent":[":root {\n    --bg: #282c34;\n    --header: #fff;\n    --link: #61dafb;\n    --text: hsla(0, 0%, 100%, 0.88);\n  }\n  \n  "],"names":[],"sourceRoot":""}
