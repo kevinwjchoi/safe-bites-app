@@ -8,7 +8,7 @@ import Signup from './pages/Signup';
 import Recipes from './pages/Recipes';
 import Layout from './components/Layout';
 import { lightTheme, darkTheme } from './styles/theme';
-import { AppProvider } from './AppContext';
+import { UserProvider } from './UserContext';
 
 function App() {
   const [mode, setMode] = useState('light'); 
@@ -29,7 +29,7 @@ function App() {
   };
 
   return (
-    <AppProvider>  {/* Use AppProvider instead of Redux Provider */}
+    <UserProvider>  {/* Use UserProvider instead of Redux Provider */}
       <ThemeProvider theme={theme}>
         <Router>
           <Layout onModeChange={handleModeChange}>
@@ -42,7 +42,7 @@ function App() {
           </Layout>
         </Router>
       </ThemeProvider>
-    </AppProvider>
+    </UserProvider>
   );
 }
 
