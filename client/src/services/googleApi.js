@@ -20,3 +20,4 @@ export const fetchPlaces = async (location) => {
     throw error;
   }
 };
+g
