@@ -8,10 +8,12 @@ import Signup from './pages/Signup';
 import Recipes from './pages/Recipes';
 import Layout from './components/Layout';
 import { lightTheme, darkTheme } from './styles/theme';
-import { UserProvider } from './UserContext';
+import { UserProvider } from './contexts/UserContext';
+import { RecipeProvider } from './contexts/RecipeContext'; // Import RecipeProvider
+import { RestaurantProvider } from './contexts/RestaurantContext'; // Import RestaurantProvider
 
 function App() {
-  const [mode, setMode] = useState('light'); 
+  const [mode, setMode] = useState('light');
 
   useEffect(() => {
     const savedMode = localStorage.getItem('themeMode') || 'light';
@@ -29,19 +31,23 @@ function App() {
   };
 
   return (
-    <UserProvider>  {/* Use UserProvider instead of Redux Provider */}
-      <ThemeProvider theme={theme}>
-        <Router>
-          <Layout onModeChange={handleModeChange}>
-            <Routes>
-              <Route path="/home" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/recipes" element={<Recipes />} />
-            </Routes>
-          </Layout>
-        </Router>
-      </ThemeProvider>
+    <UserProvider>
+      <RecipeProvider>
+        <RestaurantProvider>
+          <ThemeProvider theme={theme}>
+            <Router>
+              <Layout onModeChange={handleModeChange}>
+                <Routes>
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/recipes" element={<Recipes />} />
+                </Routes>
+              </Layout>
+            </Router>
+          </ThemeProvider>
+        </RestaurantProvider>
+      </RecipeProvider>
     </UserProvider>
   );
 }
