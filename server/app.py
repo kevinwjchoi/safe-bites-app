@@ -104,3 +104,58 @@ class Logout(Resource):
             return {'message': 'Logged out successfully'}, 204
         else:
             return {'error': 'Unauthorized'}, 401
+        
+class UpdateProfile(Resource):
+    def patch(self):
+        data = request.get_json()
+
+        if 'user_id' not in session:
+            return {'error':'User must be logged in'}, 401
+        
+        user_id = session['user_id']
+        user = User.query.filter_by(id=user_id).first()
+
+        if not user:
+            return {'error' : 'User not found'}, 404
+        
+
+        if 'new_username' not in data or 'old_password' not in data or 'new_password' not in data or 'new_email' not in data:
+            return {'error' : 'username, old password, new password, and email are required'}
+        
+        new_username = data['new_username']
+        old_password = data['old_password']
+        new_password = data['new_password']
+        new_email = data['new_email']
+
+        if not user.authenticate(old_password):
+            return {'error' : 'Old password is incorrect'}, 401
+
+        if new_username != user.username:
+            if User.query.filter_by(username=new_username).first():
+                return {'error': 'Username already exists'}, 400
+            user.update_username(new_username)
+        
+        if new_email != user.email:
+            if User.query.filter_by(email=new_email).first():
+                return {'error': 'Email already exists'}, 400
+            user.update_email(new_email)
+
+        if new_password:
+            if old_password == new_password:
+                return {'error': 'New password must be different from old password'}, 400
+            user.update_password(new_password)
+        
+        return {'message': 'Profile updated successfully'}, 200
+
+
+#User API Resources
+api.add_resource(GetUsers, '/users', endpoint='/users')
+api.add_resource(Signup, '/signup', endpoint='/signup')
+api.add_resource(CheckSession, '/check_session', endpoint='/check_session')
+api.add_resource(Login, '/login', endpoint='/login')
+api.add_resource(Logout, '/logout', endpoint='logout')
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
