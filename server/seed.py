@@ -13,9 +13,8 @@ if __name__ == '__main__':
     fake = Faker()
 
     # Lists of choices
-    allergies_list = [
-        'Dairy', 'Egg', 'Gluten', 'Grain', 'Peanut', 'Seafood', 
-        'Sesame', 'Shellfish', 'Soy', 'Sulfite', 'Tree Nut', 'Wheat'
+    diet_list = [
+    "Gluten Free", "Ketogenic", "Vegetarian","Lacto-Vegetarian", "Ovo-Vegetarian", "Vegan", "Pescetarian", "Paleo", "Primal"
     ]
     intolerances_list = [
         'Dairy', 'Egg', 'Gluten', 'Grain', 'Peanut', 'Seafood', 
@@ -51,15 +50,15 @@ if __name__ == '__main__':
             email = fake.email()
             password = username + 'password'
             
-            # Randomly select allergies, intolerances, and cuisine
-            allergies = get_random_choices(allergies_list, 3) or None
+            # Randomly select diet, intolerances, and cuisine
+            diet = get_random_choices(diet_list, 3) or None
             intolerance = get_random_choices(intolerances_list, 2) or None
             cuisine = get_random_choices(cuisine_list, 2) or None
 
             user = User(
                 username=username,
                 email=email,
-                allergies=allergies,
+                diet=diet,
                 intolerance=intolerance,
                 cuisine=cuisine
             )

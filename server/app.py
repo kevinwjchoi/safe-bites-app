@@ -1,14 +1,15 @@
 # Remote library imports
 from flask_restful import Resource, reqparse
-from dotenv import load_dotenv
-import requests
-import os
-import logging
 
 # Local imports
 from config import app, db, api
 from models import User, Recipe
+from dotenv import load_dotenv
+from sqlalchemy import and_
 from flask import render_template, request, make_response, jsonify, session
+import logging
+import requests
+import os 
 
 load_dotenv()
 api_key = os.getenv('REACT_APP_SPOONACULAR_API_KEY')
@@ -20,12 +21,14 @@ logger = logging.getLogger(__name__)
 def index(id=0):
     return render_template("index.html")
 
-# User routes 
+#User routes 
 class GetUsers(Resource):
     def get(self):
         users = User.query.all()
-        if not users:
+
+        if not users: 
             return {'error': 'No users were found'}, 404
+        
         return make_response(
             jsonify([user.to_dict() for user in users]), 200
         )
@@ -34,14 +37,16 @@ class Signup(Resource):
     def post(self):
         data = request.get_json()
 
+        # Validate required fields
         if 'username' not in data or 'email' not in data or 'password' not in data:
             return {'error': 'Username, email, and password are required'}, 422
 
         username = data['username'].lower()
         email = data['email'].lower()
         password = data['password']
-        allergies = data.get('allergies', '')
-        restrictions = data.get('restrictions', '')
+        diet = data.get('diet', '')
+        intolerance = data.get('intolerance', '')
+        cuisine = data.get('cuisine', '')
 
         username_exists = User.query.filter_by(username=username).first()
         email_exists = User.query.filter_by(email=email).first()
@@ -55,8 +60,9 @@ class Signup(Resource):
             new_user = User(
                 username=username,
                 email=email,
-                allergies=allergies,
-                restrictions=restrictions
+                diet=diet,
+                intolerance=intolerance,
+                cuisine=cuisine
             )
             new_user.password_hash = password 
             db.session.add(new_user)
@@ -69,28 +75,34 @@ class Signup(Resource):
 class CheckSession(Resource):
     def get(self):
         user = User.query.filter(User.id == session.get('user_id')).first()
+
         if user:
-            return user.to_dict(), 200
+            return user.to_dict(), 201
         else:
             return {"error": "Unauthorized"}, 401
         
 class Login(Resource):
     def post(self):
         data = request.get_json()
+
         if 'username' not in data or 'password' not in data:
             return {'error': 'Username and password are required'}, 422
 
         username = data['username']
         password = data['password']
 
+        if 'username' not in data or 'password' not in data:
+            return {'error' : 'Username, email, password are required.'}
+        
         user = User.query.filter(User.username == username).first()
 
         if not user:
-            return {'error': 'Username does not exist'}, 404
+            return {'error' : 'Username does not exist'}, 404
         
-        if user.authenticate(password): 
-            session['user_id'] = user.id
-            return user.to_dict(), 200
+        if user:
+            if user.authenticate(password): 
+                session['user_id'] = user.id
+                return user.to_dict(), 200
 
         return {'error': 'Invalid username or password'}, 401
 
@@ -105,6 +117,7 @@ class Logout(Resource):
 class UpdateProfile(Resource):
     def patch(self):
         data = request.get_json()
+
         if 'user_id' not in session:
             return {'error':'User must be logged in'}, 401
         
@@ -112,10 +125,11 @@ class UpdateProfile(Resource):
         user = User.query.filter_by(id=user_id).first()
 
         if not user:
-            return {'error': 'User not found'}, 404
+            return {'error' : 'User not found'}, 404
+        
 
         if 'new_username' not in data or 'old_password' not in data or 'new_password' not in data or 'new_email' not in data:
-            return {'error': 'Username, old password, new password, and email are required'}, 422
+            return {'error' : 'username, old password, new password, and email are required'}
         
         new_username = data['new_username']
         old_password = data['old_password']
@@ -123,7 +137,7 @@ class UpdateProfile(Resource):
         new_email = data['new_email']
 
         if not user.authenticate(old_password):
-            return {'error': 'Old password is incorrect'}, 401
+            return {'error' : 'Old password is incorrect'}, 401
 
         if new_username != user.username:
             if User.query.filter_by(username=new_username).first():
@@ -142,34 +156,21 @@ class UpdateProfile(Resource):
         
         return {'message': 'Profile updated successfully'}, 200
 
-# Recipe routes
+#Recipe routes
 class RecipeSearchResource(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('query', type=str, required=True, help='Search query is required')
-        self.parser.add_argument('cuisine', type=str, help='Cuisine filter')
-        self.parser.add_argument('excludeCuisine', type=str, help='Exclude cuisine filter')
-        self.parser.add_argument('diet', type=str, help='Diet filter')
-        self.parser.add_argument('intolerances', type=str, help='Intolerances filter')
+        self.api_key = os.getenv('REACT_APP_SPOONACULAR_API_KEY')
 
     def get(self):
         args = self.parser.parse_args()
         query = args['query']
-        cuisine = args.get('cuisine', '')
-        exclude_cuisine = args.get('excludeCuisine', '')
-        diet = args.get('diet', '')
-        intolerances = args.get('intolerances', '')
-        
         url = 'https://api.spoonacular.com/recipes/complexSearch'
         params = {
             'query': query,
-            'cuisine': cuisine,
-            'excludeCuisine': exclude_cuisine,
-            'diet': diet,
-            'intolerances': intolerances,
-            'apiKey': api_key
+            'apiKey': self.api_key
         }
-        
         response = requests.get(url, params=params)
         
         if response.status_code == 200:
@@ -177,7 +178,7 @@ class RecipeSearchResource(Resource):
             return jsonify(data['results'])  # Adjust as needed to match the Spoonacular response format
         else:
             return {'error': 'Failed to fetch recipes from Spoonacular'}, response.status_code
-
+        
 class RecipeListResource(Resource):
     def get(self):
         recipes = Recipe.query.all()
@@ -190,17 +191,36 @@ class RecipeResource(Resource):
             return jsonify(recipe.to_dict())
         return {'error': 'Recipe not found'}, 404
 
-# User API Resources
-api.add_resource(GetUsers, '/users')
-api.add_resource(Signup, '/signup')
-api.add_resource(CheckSession, '/check_session')
-api.add_resource(Login, '/login')
-api.add_resource(Logout, '/logout')
+class RecipeSearchResource(Resource):
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('query', type=str, required=True, help='Search query is required')
 
-# Recipe API Resources
-api.add_resource(RecipeSearchResource, '/recipes/search')
-api.add_resource(RecipeListResource, '/recipes')
-api.add_resource(RecipeResource, '/recipes/<int:recipe_id>')
+    def get(self):
+        args = self.parser.parse_args()
+        query = args['query']
+        api_key = 'YOUR_SPOONACULAR_API_KEY'  # Replace with your Spoonacular API key
+        url = f'https://api.spoonacular.com/recipes/complexSearch'
+        params = {
+            'query': query,
+            'apiKey': api_key
+        }
+        response = requests.get(url, params=params)
+        
+        if response.status_code == 200:
+            data = response.json()
+            return jsonify(data['results'])  # Adjust as needed to match the Spoonacular response format
+        else:
+            return {'error': 'Failed to fetch recipes from Spoonacular'}, response.status_code
+
+#User API Resources
+api.add_resource(GetUsers, '/users', endpoint='/users')
+api.add_resource(Signup, '/signup', endpoint='/signup')
+api.add_resource(CheckSession, '/check_session', endpoint='/check_session')
+api.add_resource(Login, '/login', endpoint='/login')
+api.add_resource(Logout, '/logout', endpoint='logout')
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

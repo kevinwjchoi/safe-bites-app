@@ -1,7 +1,10 @@
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates, relationship
+from sqlalchemy.ext.mutable import MutableList
 import re
+import json
+
 
 from config import db, bcrypt
 
@@ -14,9 +17,9 @@ class User(db.Model, SerializerMixin):
     username = db.Column(db.String(25), nullable=False, unique=True)
     email = db.Column(db.String(40), nullable=False, unique=True)
     _password_hash = db.Column(db.String, nullable=False)
-    allergies = db.Column(db.String)
-    intolerance = db.Column(db.String)
-    cuisine = db.Column(db.String)
+    diet = db.Column(db.Text) 
+    intolerance = db.Column(db.Text)  
+    cuisine = db.Column(db.Text) 
 
     @validates('username')
     def validate_username(self, key, username):
@@ -76,6 +79,30 @@ class User(db.Model, SerializerMixin):
             raise ValueError('Invalid email format')
         self.email = new_email
         db.session.commit()
+
+    @property
+    def diet_list(self):
+        return json.loads(self.diet) if self.diet else []
+
+    @diet_list.setter
+    def diet_list(self, value):
+        self.diet = json.dumps(value)
+
+    @property
+    def intolerance_list(self):
+        return json.loads(self.intolerance) if self.intolerance else []
+
+    @intolerance_list.setter
+    def intolerance_list(self, value):
+        self.intolerance = json.dumps(value)
+
+    @property
+    def cuisine_list(self):
+        return json.loads(self.cuisine) if self.cuisine else []
+
+    @cuisine_list.setter
+    def cuisine_list(self, value):
+        self.cuisine = json.dumps(value)
 
     def __repr__(self):
         return f'ID: {self.id}, User: {self.username}, Email: {self.email}'
