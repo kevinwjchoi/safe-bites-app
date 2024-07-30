@@ -1,16 +1,16 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoginForm from '../components/LoginForm';
-import { Container, Typography, Paper, Box, CircularProgress, Alert } from '@mui/material';
+import { Container, Typography, Paper, CircularProgress, Alert } from '@mui/material';
 import { useUserState, useUserDispatch } from '../UserContext';
 
 const Login = () => {
   const { status, error } = useUserState();
-  const dispatch = useUserDispatch();
+  const { setUser, setStatus, setError } = useUserDispatch();
   const navigate = useNavigate();
 
   const handleLogin = async (values, { resetForm }) => {
-    dispatch({ type: 'SET_STATUS', payload: 'loading' });
+    setStatus('loading');
 
     try {
       const response = await fetch('/login', {
@@ -25,12 +25,12 @@ const Login = () => {
       }
 
       const userData = await response.json();
-      dispatch({ type: 'SET_USER', payload: userData });
+      setUser(userData);
 
       navigate('/home');
 
     } catch (err) {
-      dispatch({ type: 'SET_ERROR', payload: err.message });
+      setError(err.message);
     }
   };
 
