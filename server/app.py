@@ -147,16 +147,29 @@ class RecipeSearchResource(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('query', type=str, required=True, help='Search query is required')
-        self.api_key = os.getenv('REACT_APP_SPOONACULAR_API_KEY')
+        self.parser.add_argument('cuisine', type=str, help='Cuisine filter')
+        self.parser.add_argument('excludeCuisine', type=str, help='Exclude cuisine filter')
+        self.parser.add_argument('diet', type=str, help='Diet filter')
+        self.parser.add_argument('intolerances', type=str, help='Intolerances filter')
 
     def get(self):
         args = self.parser.parse_args()
         query = args['query']
+        cuisine = args.get('cuisine', '')
+        exclude_cuisine = args.get('excludeCuisine', '')
+        diet = args.get('diet', '')
+        intolerances = args.get('intolerances', '')
+        
         url = 'https://api.spoonacular.com/recipes/complexSearch'
         params = {
             'query': query,
-            'apiKey': self.api_key
+            'cuisine': cuisine,
+            'excludeCuisine': exclude_cuisine,
+            'diet': diet,
+            'intolerances': intolerances,
+            'apiKey': api_key
         }
+        
         response = requests.get(url, params=params)
         
         if response.status_code == 200:

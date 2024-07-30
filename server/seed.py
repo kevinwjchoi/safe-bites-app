@@ -1,6 +1,5 @@
-
 # Standard library imports
-from random import choice
+from random import choice, sample
 
 # Remote library imports
 from faker import Faker
@@ -11,14 +10,33 @@ from models import User
 from config import db
 
 if __name__ == '__main__':
-
     fake = Faker()
 
-    with app.app_context():
+    # Lists of choices
+    allergies_list = [
+        'Dairy', 'Egg', 'Gluten', 'Grain', 'Peanut', 'Seafood', 
+        'Sesame', 'Shellfish', 'Soy', 'Sulfite', 'Tree Nut', 'Wheat'
+    ]
+    intolerances_list = [
+        'Dairy', 'Egg', 'Gluten', 'Grain', 'Peanut', 'Seafood', 
+        'Sesame', 'Shellfish', 'Soy', 'Sulfite', 'Tree Nut', 'Wheat'
+    ]
+    cuisine_list = [
+        'African', 'Asian', 'American', 'British', 'Cajun', 
+        'Caribbean', 'Chinese', 'Eastern European', 'European', 
+        'French', 'German', 'Greek', 'Indian', 'Irish', 'Italian', 
+        'Japanese', 'Jewish', 'Korean', 'Latin American', 
+        'Mediterranean', 'Mexican', 'Middle Eastern', 'Nordic', 
+        'Southern', 'Spanish', 'Thai', 'Vietnamese'
+    ]
 
+    def get_random_choices(choices_list, num_choices):
+        return ', '.join(sample(choices_list, min(num_choices, len(choices_list))))
+
+    with app.app_context():
         print("--Deleting all records--")
         # Delete existing data
-        # User.query.delete()
+        User.query.delete()
         
         print("--Creating users--")
         users = []
@@ -32,14 +50,18 @@ if __name__ == '__main__':
 
             email = fake.email()
             password = username + 'password'
-            allergies = ', '.join(fake.words(nb=3))  
-            restrictions = ', '.join(fake.words(nb=2))  
+            
+            # Randomly select allergies, intolerances, and cuisine
+            allergies = get_random_choices(allergies_list, 3) or None
+            intolerance = get_random_choices(intolerances_list, 2) or None
+            cuisine = get_random_choices(cuisine_list, 2) or None
 
             user = User(
                 username=username,
                 email=email,
                 allergies=allergies,
-                restrictions=restrictions
+                intolerance=intolerance,
+                cuisine=cuisine
             )
 
             user.password_hash = password 

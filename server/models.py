@@ -15,7 +15,8 @@ class User(db.Model, SerializerMixin):
     email = db.Column(db.String(40), nullable=False, unique=True)
     _password_hash = db.Column(db.String, nullable=False)
     allergies = db.Column(db.String)
-    restrictions = db.Column(db.String)
+    intolerance = db.Column(db.String)
+    cuisine = db.Column(db.String)
 
     @validates('username')
     def validate_username(self, key, username):
