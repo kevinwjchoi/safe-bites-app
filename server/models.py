@@ -79,7 +79,7 @@ class User(db.Model, SerializerMixin):
     def __repr__(self):
         return f'ID: {self.id}, User: {self.username}, Email: {self.email}'
     
-class Recipes(db.Model):
+class Recipe(db.Model):
     __tablename__ = 'recipes'
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
