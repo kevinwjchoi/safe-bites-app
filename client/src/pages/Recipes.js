@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useRecipeContext } from '../contexts/RecipeContext';
+import { useRecipeContext } from '../RecipeContext';
 import { TextField, Button, CircularProgress, Typography, List, ListItem } from '@mui/material';
 
 const Recipes = () => {

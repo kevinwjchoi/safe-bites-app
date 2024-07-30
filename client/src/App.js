@@ -8,9 +8,9 @@ import Signup from './pages/Signup';
 import Recipes from './pages/Recipes';
 import Layout from './components/Layout';
 import { lightTheme, darkTheme } from './styles/theme';
-import { UserProvider } from './contexts/UserContext';
-import { RecipeProvider } from './contexts/RecipeContext'; // Import RecipeProvider
-import { RestaurantProvider } from './contexts/RestaurantContext'; // Import RestaurantProvider
+import { UserProvider } from './UserContext';
+import { RecipeProvider } from './RecipeContext'; // Import RecipeProvider
+import { RestaurantProvider } from './RestaurantContext'; // Import RestaurantProvider
 
 function App() {
   const [mode, setMode] = useState('light');

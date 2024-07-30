@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Button, Drawer, List, ListItem, ListItemText, Switch } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAppContext } from '../AppContext';  // Import your context hook
+import { useUserState, useUserDispatch } from '../UserContext';  // Import your context hooks
 
 const Layout = ({ children, onModeChange }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { dispatch } = useAppContext();  // Use context to get dispatch
+  const { user } = useUserState();  // Use context to get user state
+  const { setUser } = useUserDispatch();  // Use context to get dispatch functions
 
   const hideAppBarRoutes = ['/login', '/signup'];
 
@@ -26,8 +27,8 @@ const Layout = ({ children, onModeChange }) => {
       const response = await fetch('/logout', { method: 'DELETE' });
 
       if (response.ok) {
-        // Dispatch action to clear user state
-        dispatch({ type: 'SET_USER', payload: null });
+        // Clear user state
+        setUser(null);
 
         navigate('/login');
       } else {
@@ -50,12 +51,16 @@ const Layout = ({ children, onModeChange }) => {
             <Typography variant="h6" component={Link} to="/home" sx={{ flexGrow: 1, textDecoration: 'none', color: 'inherit' }}>
               SafeBites
             </Typography>
-            <Button color="inherit" component={Link} to="/profile">
-              Profile
-            </Button>
-            <Button color="inherit" onClick={handleLogout}>
-              Logout
-            </Button>
+            {user && (
+              <>
+                <Button color="inherit" component={Link} to="/profile">
+                  Profile
+                </Button>
+                <Button color="inherit" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </>
+            )}
             <Switch onChange={onModeChange} />
           </Toolbar>
         </AppBar>
