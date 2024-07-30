@@ -3,7 +3,7 @@ from flask_restful import Resource
 
 # Local imports
 from config import app, db, api
-from models import User
+from models import User, Recipe
 from sqlalchemy import and_
 from flask import render_template, request, make_response, jsonify, session
 import logging
@@ -147,6 +147,40 @@ class UpdateProfile(Resource):
         
         return {'message': 'Profile updated successfully'}, 200
 
+#Recipe routes
+class RecipeListResource(Resource):
+    def get(self):
+        recipes = Recipe.query.all()
+        return jsonify([recipe.to_dict() for recipe in recipes])
+
+class RecipeResource(Resource):
+    def get(self, recipe_id):
+        recipe = Recipe.query.get(recipe_id)
+        if recipe:
+            return jsonify(recipe.to_dict())
+        return {'error': 'Recipe not found'}, 404
+
+class RecipeSearchResource(Resource):
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('query', type=str, required=True, help='Search query is required')
+
+    def get(self):
+        args = self.parser.parse_args()
+        query = args['query']
+        api_key = 'YOUR_SPOONACULAR_API_KEY'  # Replace with your Spoonacular API key
+        url = f'https://api.spoonacular.com/recipes/complexSearch'
+        params = {
+            'query': query,
+            'apiKey': api_key
+        }
+        response = requests.get(url, params=params)
+        
+        if response.status_code == 200:
+            data = response.json()
+            return jsonify(data['results'])  # Adjust as needed to match the Spoonacular response format
+        else:
+            return {'error': 'Failed to fetch recipes from Spoonacular'}, response.status_code
 
 #User API Resources
 api.add_resource(GetUsers, '/users', endpoint='/users')
