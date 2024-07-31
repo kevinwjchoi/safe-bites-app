@@ -1,35 +1,35 @@
-import React, { createContext, useState, useContext, useCallback } from 'react';
-
+import React, { createContext, useState, useContext } from 'react';
+import { fetchRecipes } from './services/spoonacularApi'
 const RecipeContext = createContext();
 
 export const RecipeProvider = ({ children }) => {
-  const [recipes, setRecipes] = useState([]);
-  const [status, setStatus] = useState('idle');
-  const [error, setError] = useState(null);
+    const [recipes, setRecipes] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-  const fetchRecipes = useCallback(async (query) => {
-    setStatus('loading');
-    setError(null);
+    const getRecipes = async (dataobj) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const fetchedRecipes = await fetchRecipes(dataobj);
+            console.log(fetchedRecipes)
+            console.log(fetchedRecipes.results)
+            setRecipes(fetchedRecipes.results);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    try {
-      const response = await fetch(`/recipes/search?query=${query}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch recipes');
-      }
-      const data = await response.json();
-      setRecipes(data.results);
-      setStatus('succeeded');
-    } catch (err) {
-      setError(err.message);
-      setStatus('failed');
-    }
-  }, []);
-
-  return (
-    <RecipeContext.Provider value={{ recipes, status, error, fetchRecipes }}>
-      {children}
-    </RecipeContext.Provider>
-  );
+    return (
+        <RecipeContext.Provider value={{ recipes, getRecipes, loading, error }}>
+            {children}
+        </RecipeContext.Provider>
+    );
 };
 
-export const useRecipeContext = () => useContext(RecipeContext);
+// Custom hook to use the RecipeContext
+export const useRecipeContext = () => {
+    return useContext(RecipeContext);
+};

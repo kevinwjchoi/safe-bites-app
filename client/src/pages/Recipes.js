@@ -1,45 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Typography, CircularProgress, List, ListItem } from '@mui/material';
 import { useRecipeContext } from '../RecipeContext';
-import { TextField, Button, CircularProgress, Typography, List, ListItem } from '@mui/material';
+import RecipeSearchForm from '../components/RecipeSearchForm';
 
 const Recipes = () => {
-  const [query, setQuery] = useState('');
-  const { recipes, status, error, fetchRecipes } = useRecipeContext();
-
-  const handleSearchChange = (event) => {
-    setQuery(event.target.value);
-  };
-
-  const handleSearchSubmit = (event) => {
-    event.preventDefault();
-    if (query.trim()) {
-      fetchRecipes(query);
-    }
-  };
+  const { recipes, status, error } = useRecipeContext();
 
   return (
     <div>
       <Typography variant="h4" gutterBottom>
         Recipes
       </Typography>
-      <form onSubmit={handleSearchSubmit}>
-        <TextField
-          label="Search for recipes"
-          variant="outlined"
-          value={query}
-          onChange={handleSearchChange}
-          fullWidth
-          margin="normal"
-        />
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          sx={{ mt: 2 }}
-        >
-          Search
-        </Button>
-      </form>
+      <RecipeSearchForm />
       {status === 'loading' && <CircularProgress />}
       {status === 'failed' && (
         <Typography color="error">
