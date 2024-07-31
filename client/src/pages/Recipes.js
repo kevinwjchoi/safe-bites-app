@@ -1,69 +1,64 @@
-import React, { useState } from 'react';
-import { Typography, CircularProgress, List, ListItem, Button, Card, CardContent, CardMedia } from '@mui/material';
+import React from 'react';
+import { Typography, CircularProgress, Button } from '@mui/material';
 import { useRecipeContext } from '../RecipeContext';
 import RecipeSearchForm from '../components/RecipeSearchForm';
-import RecipeDetails from '../pages/RecipeDetails'; 
+import RecipeCards from '../components/RecipeCards';
+import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@mui/material/styles';
 
 const Recipes = () => {
-  const { recipes, status, error } = useRecipeContext();
-  const [showSearchForm, setShowSearchForm] = useState(true);
-  const [selectedRecipeId, setSelectedRecipeId] = useState(null);
+  const theme = useTheme();
+  const { recipes, loading, error, showForm, setShowForm, resetState } = useRecipeContext();
+  const navigate = useNavigate();
 
-  const handleRecipeClick = (id) => {
-    setSelectedRecipeId(id);
+  const handleViewDetails = (id) => {
+    navigate(`/recipe/${id}`);
   };
 
-  const handleBackClick = () => {
-    setSelectedRecipeId(null);
+  const handleBackToRecipes = () => {
+    resetState();
+    navigate('/recipes');
+  };
+
+  const handleSearch = () => {
+    setShowForm(false);
   };
 
   return (
     <div>
-      <Typography variant="h4" gutterBottom>
-        Find Recipes
-      </Typography>
-      <Button 
-        variant="contained" 
-        onClick={() => setShowSearchForm(prev => !prev)}
+      <Typography 
+        variant="h4" 
+        gutterBottom 
+        sx={{ color: theme.palette.text.primary }} // Use theme color
       >
-        {showSearchForm ? 'Close search' : 'Search'}
-      </Button>
-      
-      {showSearchForm && <RecipeSearchForm />}
-      
-      {status === 'loading' && <CircularProgress />}
-      {status === 'failed' && (
-        <Typography color="error">
-          {typeof error === 'string' ? error : 'An unexpected error occurred.'}
-        </Typography>
+        Recipes
+      </Typography>
+      {showForm && <RecipeSearchForm handleSearch={handleSearch} />}
+      {!showForm && (
+        <>
+          {loading && <CircularProgress />}
+          {error && (
+            <Typography color="error">
+              {typeof error === 'string' ? error : 'An unexpected error occurred.'}
+            </Typography>
+          )}
+          {!loading && !error && recipes.length > 0 && (
+            <RecipeCards recipes={recipes} handleViewDetails={handleViewDetails} />
+          )}
+          {!loading && !error && recipes.length === 0 && (
+            <Typography variant="body1">No recipes found.</Typography>
+          )}
+        </>
       )}
-      {status === 'succeeded' && !selectedRecipeId && (
-        <List>
-          {recipes.map((recipe) => (
-            <ListItem key={recipe.id} button onClick={() => handleRecipeClick(recipe.id)}>
-              <Card>
-                <CardMedia
-                  component="img"
-                  image={recipe.image}
-                  alt={recipe.title}
-                />
-                <CardContent>
-                  <Typography variant="h6">{recipe.title}</Typography>
-                </CardContent>
-              </Card>
-            </ListItem> 
-          ))}
-        </List>
-        
-      )}
-      
-      {selectedRecipeId && (
-        <div>
-          <Button variant="contained" onClick={handleBackClick}>
-            Back to Recipes
-          </Button>
-          <RecipeDetails id={selectedRecipeId} />
-        </div>
+      {!showForm && recipes.length > 0 && (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleBackToRecipes}
+          style={{ marginTop: '20px' }}
+        >
+          New search
+        </Button>
       )}
     </div>
   );

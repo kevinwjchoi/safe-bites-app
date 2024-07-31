@@ -14,18 +14,18 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: var(--header); /* Use CSS variable for header background */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: var(--text); /* Use CSS variable for header text color */
 }
 
 .App-link {
-  color: #61dafb;
+  color: var(--link); /* Use CSS variable for link color */
 }
 
 @keyframes App-logo-spin {
@@ -35,4 +35,11 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.background-container {
+  padding: 20px;
+  min-height: 100vh;
+  background-color: var(--bg); /* Use CSS variable for background color */
+  transition: background-color 0.3s ease;
 }

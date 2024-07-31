@@ -6,7 +6,7 @@ import CustomTextField from './CustomTextField';
 import CustomSelect from './CustomSelect'; 
 import { Link } from 'react-router-dom';
 
-// Example lists for select inputs
+
 const dietOptions = [
   "Gluten Free", "Ketogenic", "Vegetarian", "Lacto-Vegetarian", "Ovo-Vegetarian", "Vegan", "Pescetarian", "Paleo", "Primal"
 ];

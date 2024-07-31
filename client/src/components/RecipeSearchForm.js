@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { TextField, Button, MenuItem, Select, InputLabel, FormControl, Typography } from '@mui/material';
-import { useRecipeContext } from '../RecipeContext'
+import React from 'react';
+import { TextField, Button, Typography, FormControl } from '@mui/material';
+import { useRecipeContext } from '../RecipeContext';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import CustomSelect from './CustomSelect';
 
-const cuisines = [
+const cuisineOptions = [
   'African', 'Asian', 'American', 'British', 'Cajun', 'Caribbean', 'Chinese', 
   'Eastern European', 'European', 'French', 'German', 'Greek', 'Indian', 
   'Irish', 'Italian', 'Japanese', 'Jewish', 'Korean', 'Latin American', 
@@ -10,125 +12,115 @@ const cuisines = [
   'Spanish', 'Thai', 'Vietnamese'
 ];
 
-const availableIntolerances = [
+const intoleranceOptions = [
   'Dairy', 'Egg', 'Gluten', 'Grain', 'Peanut', 'Seafood', 'Sesame', 
   'Shellfish', 'Soy', 'Sulfite', 'Tree Nut', 'Wheat'
 ];
 
-const RecipeSearchForm = () => {
-  const [query, setQuery] = useState('');
-  const [cuisine, setCuisine] = useState('');
-  const [intolerances, setIntolerances] = useState([]);
-  const [diet, setDiet] = useState('');
-  const [excludeCuisine, setExcludeCuisine] = useState('');
-  const { getRecipes, recipes, loading, error } = useRecipeContext();
+const dietOptions = [
+  "Gluten Free", "Ketogenic", "Vegetarian", "Lacto-Vegetarian", "Ovo-Vegetarian", "Vegan", "Pescetarian", "Paleo", "Primal"
+];
 
-  const handleSearchChange = (event) => setQuery(event.target.value);
-  const handleCuisineChange = (event) => setCuisine(event.target.value);
-  const handleIntolerancesChange = (event) => setIntolerances(event.target.value);
-  const handleDietChange = (event) => setDiet(event.target.value);
-  const handleExcludeCuisineChange = (event) => setExcludeCuisine(event.target.value);
+const RecipeSearchForm = ({ handleSearch }) => {
+  const { getRecipes } = useRecipeContext();
 
-  const handleSearchSubmit = async (event) => {
-    event.preventDefault();
+  const initialValues = {
+    query: '',
+    cuisine: [],
+    intolerances: [],
+    diet: [],
+    excludeCuisine: []
+  };
+
+  const handleSearchSubmit = async (values, { setSubmitting }) => {
     const dataobj = {
-      query,
-      cuisine,
-      intolerances: intolerances.join(','),
-      diet,
-      excludeCuisine
+      query: values.query,
+      cuisine: values.cuisine.join(','),
+      intolerances: values.intolerances.join(','),
+      diet: values.diet.join(','),
+      excludeCuisine: values.excludeCuisine.join(',')
     };
-    getRecipes(dataobj);
+    await getRecipes(dataobj);
+    handleSearch(); // Hide form after search
+    setSubmitting(false);
   };
 
   return (
-    <div>
-      <form onSubmit={handleSearchSubmit}>
-        <Typography variant="h6" gutterBottom>
-          Search for Recipes
-        </Typography>
-        <TextField
-          label="Search query"
-          variant="outlined"
-          value={query}
-          onChange={handleSearchChange}
-          fullWidth
-          margin="normal"
-        />
-        <FormControl fullWidth margin="normal">
-          <InputLabel>Cuisine</InputLabel>
-          <Select
-            value={cuisine}
-            onChange={handleCuisineChange}
-            label="Cuisine"
+    <Formik initialValues={initialValues} onSubmit={handleSearchSubmit}>
+      {({ isSubmitting }) => (
+        <Form>
+          <Typography variant="h6" gutterBottom>
+            Search for Recipes
+          </Typography>
+          <Field name="query">
+            {({ field }) => (
+              <FormControl fullWidth margin="normal">
+                <TextField
+                  {...field}
+                  label="Search query"
+                  variant="outlined"
+                  fullWidth
+                />
+                <ErrorMessage name="query" component="div" style={{ color: 'red' }} />
+              </FormControl>
+            )}
+          </Field>
+          <Field name="cuisine">
+            {({ field, form }) => (
+              <CustomSelect
+                label="Cuisine"
+                name="cuisine"
+                options={cuisineOptions}
+                value={field.value}
+                onChange={(value) => form.setFieldValue("cuisine", value)}
+              />
+            )}
+          </Field>
+          <Field name="intolerances">
+            {({ field, form }) => (
+              <CustomSelect
+                label="Intolerances"
+                name="intolerances"
+                options={intoleranceOptions}
+                value={field.value}
+                onChange={(value) => form.setFieldValue("intolerances", value)}
+              />
+            )}
+          </Field>
+          <Field name="diet">
+            {({ field, form }) => (
+              <CustomSelect
+                label="Diet"
+                name="diet"
+                options={dietOptions}
+                value={field.value}
+                onChange={(value) => form.setFieldValue("diet", value)}
+              />
+            )}
+          </Field>
+          <Field name="excludeCuisine">
+            {({ field, form }) => (
+              <CustomSelect
+                label="Exclude Cuisine"
+                name="excludeCuisine"
+                options={cuisineOptions}
+                value={field.value}
+                onChange={(value) => form.setFieldValue("excludeCuisine", value)}
+              />
+            )}
+          </Field>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={isSubmitting}
+            sx={{ mt: 2 }}
           >
-            {cuisines.map((cuisineOption) => (
-              <MenuItem key={cuisineOption} value={cuisineOption}>
-                {cuisineOption}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl fullWidth margin="normal">
-          <InputLabel>Intolerances</InputLabel>
-          <Select
-            multiple
-            value={intolerances}
-            onChange={handleIntolerancesChange}
-            renderValue={(selected) => selected.join(', ')}
-            label="Intolerances"
-          >
-            {availableIntolerances.map((intolerance) => (
-              <MenuItem key={intolerance} value={intolerance}>
-                {intolerance}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <TextField
-          label="Diet"
-          variant="outlined"
-          value={diet}
-          onChange={handleDietChange}
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Exclude Cuisine"
-          variant="outlined"
-          value={excludeCuisine}
-          onChange={handleExcludeCuisineChange}
-          fullWidth
-          margin="normal"
-        />
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          sx={{ mt: 2 }}
-        >
-          Submit
-        </Button>
-      </form>
-      <div>
-        {loading && <Typography variant="body1" gutterBottom>Loading...</Typography>}
-        {error && <Typography variant="body1" color="error" gutterBottom>{error}</Typography>}
-        {recipes.length > 0 ? (
-          <div>
-            <Typography variant="h6" gutterBottom>
-              Recipe Results
-            </Typography>
-            <ul>
-              {recipes.map((recipe) => (
-                <li key={recipe.id}>{recipe.title}</li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          !loading && <Typography variant="body1" gutterBottom>No recipes found.</Typography>
-        )}
-      </div>
-    </div>
+            Search
+          </Button>
+        </Form>
+      )}
+    </Formik>
   );
 };
 

@@ -16,7 +16,7 @@ const lightTheme = createTheme({
     },
     background: {
       default: '#C7D1C5', // Frosted Sage
-      paper: '#F5F5F5', // Light grey surfaces
+      paper: '#C7D1C5', // Frosted Sage
     },
     text: {
       primary: '#212121', // Dark grey text
@@ -52,22 +52,22 @@ const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#79A76B', // Sage green (same as light)
-      light: '#79A76B', // Sage garden
-      dark: '#4A5D23', // Darker sage green
+      main: '#007AFF', // Accent blue
+      light: '#4D9CFF', // Lighter blue
+      dark: '#0051A1', // Darker blue
+    },
+    background: {
+      default: '#1E1E1E', // Primary background
+      paper: '#2C2C2C', // Secondary background
+    },
+    text: {
+      primary: '#E0E0E0', // Primary text
+      secondary: '#A0A0A0', // Secondary text
     },
     secondary: {
       main: '#FF9800', // Bold orange (same as light)
       light: '#FFB74D', // Lighter orange
       dark: '#F57C00', // Darker orange
-    },
-    background: {
-      default: '#303030', // Dark background
-      paper: '#424242', // Dark paper surfaces
-    },
-    text: {
-      primary: '#BDBDBD',
-      secondary: '#B0B0B0', 
     },
   },
   typography: {
@@ -83,7 +83,6 @@ const darkTheme = createTheme({
     h4: {
       fontWeight: 600,
       fontSize: '2rem',
-      color: '#BDBDBD',
     },
     body1: {
       fontWeight: 400,

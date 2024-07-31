@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Button, Drawer, List, ListItem, ListItemText, Switch } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useUserState, useUserDispatch } from '../UserContext';  // Import your context hooks
+import '../styles/Layout.css';
 
-const Layout = ({ children, onModeChange }) => {
+const Layout = ({ children, mode, onModeChange }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -14,6 +15,11 @@ const Layout = ({ children, onModeChange }) => {
   const hideAppBarRoutes = ['/login', '/signup'];
 
   const shouldHideAppBar = hideAppBarRoutes.includes(location.pathname);
+  
+  
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', mode);
+  }, [mode]);
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -27,7 +33,6 @@ const Layout = ({ children, onModeChange }) => {
       const response = await fetch('/logout', { method: 'DELETE' });
 
       if (response.ok) {
-        // Clear user state
         setUser(null);
 
         navigate('/login');
@@ -39,6 +44,8 @@ const Layout = ({ children, onModeChange }) => {
       console.error('Logout error:', err.message);
     }
   };
+
+
 
   return (
     <div className="background-container">
@@ -61,7 +68,11 @@ const Layout = ({ children, onModeChange }) => {
                 </Button>
               </>
             )}
-            <Switch onChange={onModeChange} />
+            <Switch
+              checked={mode === 'dark'}
+              onChange={onModeChange}
+              sx={{ ml: 2 }} // Add some margin to the left of the switch
+            />          
           </Toolbar>
         </AppBar>
       )}
@@ -72,16 +83,18 @@ const Layout = ({ children, onModeChange }) => {
         onClose={toggleDrawer(false)}
       >
         <List>
-          <ListItem component={Link} to="/restaurants" sx={{ flexGrow: 1, textDecoration: 'none', color: 'inherit' }}>
+          <ListItem className="drawer-link" component={Link} to="/restaurants" onClick={() => setDrawerOpen(false)}>
             <ListItemText primary="Restaurants" />
           </ListItem>
-          <ListItem component={Link} to="/recipes" sx={{ flexGrow: 1, textDecoration: 'none', color: 'inherit' }}>
+          <ListItem className="drawer-link" component={Link} to="/recipes" onClick={() => setDrawerOpen(false)}>
             <ListItemText primary="Recipes" />
           </ListItem>
         </List>
       </Drawer>
 
-      <main>{children}</main>
+      <main style={{ padding: '16px 5% 50px 7%' }}> {/* Top and bottom padding of 16px, left and right padding of 5% */}
+        {children}
+      </main>
     </div>
   );
 };

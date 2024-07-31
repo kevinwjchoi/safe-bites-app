@@ -1,35 +1,36 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardContent, CardMedia, Typography, Button } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Button, Grid } from '@mui/material';
 
-const RecipeCards = ({ recipes }) => {
+const RecipeCards = ({ recipes, handleViewDetails }) => {
   return (
-    <div>
+    <Grid container spacing={3}>
       {recipes.map(recipe => (
-        <Card key={recipe.id} style={{ margin: '10px', maxWidth: 345 }}>
-          <CardMedia
-            component="img"
-            height="140"
-            image={recipe.image}
-            alt={recipe.title}
-          />
-          <CardContent>
-            <Typography variant="h5" component="div">
-              {recipe.title}
-            </Typography>
-            <Button
-              component={Link}
-              to={`/recipe/${recipe.id}`}
-              variant="contained"
-              color="primary"
-              style={{ marginTop: '10px' }}
-            >
-              View Details
-            </Button>
-          </CardContent>
-        </Card>
+        <Grid item xs={12} sm={6} md={4} lg={3} key={recipe.id}>
+          <Card style={{ maxWidth: 345, minHeight: 400, display: 'flex', flexDirection: 'column' }}>
+            <CardMedia
+              component="img"
+              height="220" 
+              image={recipe.image}
+              alt={recipe.title}
+              style={{ objectFit: 'cover' }} 
+            />
+            <CardContent style={{ flex: '1 0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Typography variant="h6" component="div" align="center" style={{ marginBottom: 'auto' }}>
+                {recipe.title}
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                style={{ marginTop: '5px', marginBottom: '5px', alignSelf: 'center' }} 
+                onClick={() => handleViewDetails(recipe.id)}
+              >
+                View Details
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
       ))}
-    </div>
+    </Grid>
   );
 };
 
