@@ -107,7 +107,7 @@ const RecipeSearchForm = () => {
           color="primary"
           sx={{ mt: 2 }}
         >
-          Search
+          Submit
         </Button>
       </form>
       <div>

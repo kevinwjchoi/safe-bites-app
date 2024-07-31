@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Typography, CircularProgress, List, ListItem, Button, Card, CardContent, CardMedia } from '@mui/material';
 import { useRecipeContext } from '../RecipeContext';
 import RecipeSearchForm from '../components/RecipeSearchForm';
-import RecipeDetails from '../components/RecipeDetails'; 
+import RecipeDetails from '../pages/RecipeDetails'; 
 
 const Recipes = () => {
   const { recipes, status, error } = useRecipeContext();
@@ -20,13 +20,13 @@ const Recipes = () => {
   return (
     <div>
       <Typography variant="h4" gutterBottom>
-        Recipes
+        Find Recipes
       </Typography>
       <Button 
         variant="contained" 
         onClick={() => setShowSearchForm(prev => !prev)}
       >
-        {showSearchForm ? 'Hide Search Form' : 'Show Search Form'}
+        {showSearchForm ? 'Close search' : 'Search'}
       </Button>
       
       {showSearchForm && <RecipeSearchForm />}
@@ -54,6 +54,7 @@ const Recipes = () => {
             </ListItem> 
           ))}
         </List>
+        
       )}
       
       {selectedRecipeId && (
