@@ -26,7 +26,7 @@ export const RecipeProvider = ({ children }) => {
   const resetState = () => {
     setRecipes([]);
     setError(null);
-    setShowForm(true); // Show the form again when resetting
+    setShowForm(true);
   };
 
   return (

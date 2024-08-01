@@ -26,7 +26,7 @@ const Login = () => {
 
       const userData = await response.json();
       setUser(userData);
-
+      resetForm();
       navigate('/home');
 
     } catch (err) {

@@ -31,7 +31,7 @@ const RecipeDetails = () => {
 
   if (loading) return <CircularProgress />;
   if (error) return <Typography color="error">{error}</Typography>;
-  if (!recipe) return <Typography>No recipe details found.</Typography>;
+  if (!recipe) return <Typography>No recipe details found</Typography>;
 
   return (
     <Card>

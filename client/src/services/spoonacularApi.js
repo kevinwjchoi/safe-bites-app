@@ -34,8 +34,6 @@ export const fetchRecipes = async (dataobj) => {
   }
 };
 
-
-
 // Function to fetch detailed information about a single recipe
 export const fetchRecipeDetails = async (recipeId) => {
   const apiKey = process.env.REACT_APP_SPOONACULAR_API_KEY;

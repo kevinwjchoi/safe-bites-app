@@ -59,7 +59,6 @@ const RecipeSearchForm = ({ handleSearch }) => {
                   {...field}
                   label="Search query"
                   variant="outlined"
-                  fullWidth
                 />
                 <ErrorMessage name="query" component="div" style={{ color: 'red' }} />
               </FormControl>
@@ -68,6 +67,7 @@ const RecipeSearchForm = ({ handleSearch }) => {
           <Field name="cuisine">
             {({ field, form }) => (
               <CustomSelect
+                margin="normal"
                 label="Cuisine"
                 name="cuisine"
                 options={cuisineOptions}
