@@ -9,7 +9,6 @@ const Home = () => {
   const { setUser, setStatus, setError } = useUserDispatch();
 
   useEffect(() => {
-    // Example effect to fetch user data
     const fetchUser = async () => {
       setStatus('loading');
       try {
@@ -31,10 +30,14 @@ const Home = () => {
     fetchUser();
   }, [setUser, setStatus, setError]);
 
+  const capFirstLetter = (string) => 
+    string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+
+
   return (
     <Container sx={{ bgcolor: 'background.default', minHeight: '100vh', pt: 2 }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Welcome, {user ? user.username : 'Guest'}
+        Welcome, {user ? capFirstLetter(user.username) : 'Guest'}
       </Typography>
       <Typography variant="body1" paragraph>
         {/* Add more content here if needed */}

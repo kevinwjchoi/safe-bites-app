@@ -34,7 +34,7 @@ const Layout = ({ children, mode, onModeChange }) => {
 
       if (response.ok) {
         setUser(null);
-
+        setDrawerOpen(false)
         navigate('/login');
       } else {
         const data = await response.json();
@@ -88,6 +88,12 @@ const Layout = ({ children, mode, onModeChange }) => {
           </ListItem>
           <ListItem className="drawer-link" component={Link} to="/recipes" onClick={() => setDrawerOpen(false)}>
             <ListItemText primary="Recipes" />
+          </ListItem>
+          <ListItem className="drawer-link" component={Link} to="/profile">
+            <ListItemText primary="Profile" />
+          </ListItem>
+          <ListItem button className="drawer-button" onClick={handleLogout}>
+            <ListItemText primary="Logout" />
           </ListItem>
         </List>
       </Drawer>

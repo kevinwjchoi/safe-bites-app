@@ -40,6 +40,9 @@ const Login = () => {
         <Typography variant="h1" component="h1" gutterBottom>
           Login
         </Typography>
+        <Typography variant="h8" align="center">
+        Discover recipes and restaurants tailored to your needs—whether it's dietary restrictions, specific cuisines, or personal preferences!
+        </Typography>
 
         {status === 'loading' && <CircularProgress sx={{ mt: 2 }} />}
         {status === 'failed' && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
