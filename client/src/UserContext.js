@@ -10,9 +10,31 @@ export const UserProvider = ({ children }) => {
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState(null);
 
+  // Function to check user session
+  const checkSession = async () => {
+    setStatus('loading');
+    try {
+      const response = await fetch('/check_session'); 
+      const data = await response.json();
+      if (response.ok) {
+        setUser(data);
+        setStatus('succeeded');
+        return true; // Return true if authenticated
+      } else {
+        setError(data.error);
+        setStatus('failed');
+        return false; // Return false if not authenticated
+      }
+    } catch (error) {
+      setError(error.message);
+      setStatus('failed');
+      return false; // Return false if there was an error
+    }
+  };
+
   return (
     <UserContext.Provider value={{ user, status, error }}>
-      <UserDispatchContext.Provider value={{ setUser, setStatus, setError }}>
+      <UserDispatchContext.Provider value={{ setUser, setStatus, setError, checkSession }}>
         {children}
       </UserDispatchContext.Provider>
     </UserContext.Provider>

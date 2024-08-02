@@ -8,27 +8,7 @@ const Home = () => {
   const { user } = useUserState();
   const { setUser, setStatus, setError } = useUserDispatch();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      setStatus('loading');
-      try {
-        const response = await fetch('/check_session'); 
-        const data = await response.json();
-        if (response.ok) {
-          setUser(data);
-          setStatus('succeeded');
-        } else {
-          setError(data.error);
-          setStatus('failed');
-        }
-      } catch (error) {
-        setError(error.message);
-        setStatus('failed');
-      }
-    };
 
-    fetchUser();
-  }, [setUser, setStatus, setError]);
 
   const capFirstLetter = (string) => 
     string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();

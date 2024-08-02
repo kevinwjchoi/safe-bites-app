@@ -1,19 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-
-// Routes for my pages 
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Profile from './pages/Profile';
 import Recipes from './pages/Recipes';
-import RecipeDetails from './pages/RecipeDetails'
-
+import RecipeDetails from './pages/RecipeDetails';
 import Layout from './components/Layout';
 import { lightTheme, darkTheme } from './styles/theme';
-import { UserProvider } from './UserContext';
+import { UserProvider, useUserDispatch } from './UserContext'; 
 import { RecipeProvider } from './RecipeContext'; 
 import { RestaurantProvider } from './RestaurantContext'; 
+import { useLocation } from 'react-router-dom';
+
+const AppRoutes = () => {
+  const navigate = useNavigate();
+  const { checkSession } = useUserDispatch();
+  const location = useLocation(); // Get the current location
+
+  useEffect(() => {
+    const checkUserSession = async () => {
+      const isAuthenticated = await checkSession();
+      if (!isAuthenticated && location.pathname !== '/login' && location.pathname !== '/signup') {
+        navigate('/login'); 
+      }
+    };
+
+    // Check session only if not on login or signup pages
+    if (location.pathname !== '/login' && location.pathname !== '/signup') {
+      checkUserSession();
+    }
+  }, [checkSession, navigate, location]);
+
+  return (
+    <Routes>
+      <Route path="/home" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/recipes" element={<Recipes />} />
+      <Route path="/recipe/:id" element={<RecipeDetails />} />
+    </Routes>
+  );
+};
 
 function App() {
   const [mode, setMode] = useState('light');
@@ -40,13 +70,7 @@ function App() {
           <ThemeProvider theme={theme}>
             <Router>
               <Layout mode={mode} onModeChange={handleModeChange}>
-                <Routes>
-                  <Route path="/home" element={<Home />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/recipes" element={<Recipes />} />
-                  <Route path="/recipe/:id" element={<RecipeDetails />} />
-                </Routes>
+                <AppRoutes />
               </Layout>
             </Router>
           </ThemeProvider>
