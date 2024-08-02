@@ -68,7 +68,7 @@ const RecipeSearchForm = ({ handleSearch }) => {
             {({ field, form }) => (
               <CustomSelect
                 margin="normal"
-                label="Cuisine"
+                label="Preferred Cuisine"
                 name="cuisine"
                 options={cuisineOptions}
                 value={field.value}

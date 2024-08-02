@@ -3,6 +3,7 @@ import { AppBar, Toolbar, Typography, IconButton, Button, Drawer, List, ListItem
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useUserState, useUserDispatch } from '../UserContext';  // Import your context hooks
+import BasicRecipeSearchForm from './BasicRecipeSearchForm';
 import '../styles/Layout.css';
 
 const Layout = ({ children, mode, onModeChange }) => {
@@ -81,7 +82,15 @@ const Layout = ({ children, mode, onModeChange }) => {
         anchor="left"
         open={drawerOpen}
         onClose={toggleDrawer(false)}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: 270, // Set the desired width here
+          },
+        }}
       >
+        <div style={{ padding: '16px' }}>
+          <BasicRecipeSearchForm handleSearch={() => setDrawerOpen(false)} />
+        </div>
         <List>
           <ListItem className="drawer-link" component={Link} to="/restaurants" onClick={() => setDrawerOpen(false)}>
             <ListItemText primary="Restaurants" />

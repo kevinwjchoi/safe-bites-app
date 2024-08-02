@@ -23,7 +23,7 @@ const CustomSelect = ({ label, name, options }) => {
             MenuProps={{
               PaperProps: {
                 style: {
-                  maxHeight: 200, 
+                  maxHeight: 500, 
                 },
               },
             }}
