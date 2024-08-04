@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { fetchNearbyRestaurants } from './yelpApi'; // Adjust the path as necessary
 
 const RestaurantContext = createContext();
 const RestaurantDispatchContext = createContext();
@@ -8,16 +9,12 @@ export const RestaurantProvider = ({ children }) => {
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState(null);
 
-  const fetchRestaurants = useCallback(async (query) => {
+  const fetchRestaurants = useCallback(async (dataobj) => {
     setStatus('loading');
     setError(null);
     try {
-      const response = await fetch(`/restaurants/search?query=${query}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch restaurants');
-      }
-      const data = await response.json();
-      setRestaurants(data.results);
+      const data = await fetchNearbyRestaurants(dataobj);
+      setRestaurants(data.businesses);
       setStatus('succeeded');
     } catch (err) {
       setError(err.message);
