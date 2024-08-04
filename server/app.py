@@ -3,7 +3,7 @@ from flask_restful import Resource, reqparse
 
 # Local imports
 from config import app, db, api
-from models import User, Recipe
+from models import User, Recipe, Restaurant
 from sqlalchemy import and_
 from flask import render_template, request, make_response, jsonify, session
 import logging
@@ -221,8 +221,29 @@ class RecipeResource(Resource):
             return jsonify(recipe.to_dict())
         return {'error': 'Recipe not found'}, 404
 
-
-
+# Restaurant Routes 
+class GetRestaurantNearbyResource(Resource):
+    def get(self):
+        location = request.args.get('location')
+        term = request.args.get('term', 'restaurant')
+        categories = request.args.get('categories')
+        
+        url = 'https://api.yelp.com/v3/businesses/search'
+        headers = {'Authorization': f'Bearer {YELP_API_KEY}'}
+        params = {
+            'location': location,
+            'term': term,
+            'categories': categories,
+            'limit': 10  # Adjust as necessary
+        }
+        
+        response = requests.get(url, headers=headers, params=params)
+        
+        if response.status_code == 200:
+            data = response.json()
+            return jsonify(data)
+        else:
+            return jsonify({'error': 'Failed to fetch data from Yelp'}), response.status_code
 
 
 #User API Resources
@@ -234,8 +255,11 @@ api.add_resource(Logout, '/logout', endpoint='logout')
 
 #Recipe API Resources
 api.add_resource(RecipeSearchResource, '/recipes/search')
+api.add_resource(RecipeListResource, '/recipes_list')
+api.add_resource(RecipeResource, '/recipe')
 
-
+#Restaurant API Resources 
+api.add_resource(GetRestaurantNearbyResource, '/restaurants/nearby')
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -27,6 +27,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.json.compact = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', os.urandom(24).hex())
 api_key = os.getenv('REACT_APP_SPOONACULAR_API_KEY')
+YELP_API_KEY = os.getenv('YELP_API_KEY')
 
 # Define metadata, instantiate db
 metadata = MetaData(naming_convention={

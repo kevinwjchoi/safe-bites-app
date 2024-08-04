@@ -148,3 +148,40 @@ class Recipe(db.Model):
     
     def __repr__(self):
         return f'ID: {self.id}, Name: {self.name}, Cuisine: {self.cuisine}, Rating: {self.rating}'
+
+
+class Restaurant(db.Model):
+    __tablename__ = 'restaurants'
+
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    address = db.Column(db.Text, nullable=False)
+    cusuine_type = db.Column(db.String)
+    rating = db.Column(db.Integer)
+
+    @validates('name')
+    def validate__name(self, key, name):
+        if not name or len(name) > 100:
+            raise ValueError('Name must be between 1 and 100 characters long')
+        return name
+    
+    @validates('address')
+    def validate_address(self, key, address):
+        if not address:
+            raise ValueError('Address cannot be empty')
+        return address
+
+    @validates('cuisine_type')
+    def validate_cuisine_type(self, key, cuisine_type):
+        if cuisine_type and len(cuisine_type) > 50:
+            raise ValueError('Cuisine type must be 50 characters or less')
+        return cuisine_type
+
+    @validates('rating')
+    def validate_rating(self, key, rating):
+        if rating is not None and (rating < 1 or rating > 5):
+            raise ValueError('Rating must be an integer between 1 and 5')
+        return rating
+    
+    def __repr__(self):
+        return f'ID: {self.id} , Name: {self.name}, Address: {self.address}, Cuisine: {self.cusuine_type}, Rating: {self.rating}'
