@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { fetchNearbyRestaurants } from './yelpApi'; // Adjust the path as necessary
+import { fetchNearbyRestaurants } from '../src/services/yelpApi'
 
 const RestaurantContext = createContext();
 const RestaurantDispatchContext = createContext();

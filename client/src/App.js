@@ -7,6 +7,7 @@ import Signup from './pages/Signup';
 import Profile from './pages/Profile';
 import Recipes from './pages/Recipes';
 import RecipeDetails from './pages/RecipeDetails';
+import Restaurants from './pages/Restaurants';
 import Layout from './components/Layout';
 import { lightTheme, darkTheme } from './styles/theme';
 import { UserProvider, useUserDispatch } from './UserContext'; 
@@ -41,6 +42,7 @@ const AppRoutes = () => {
       <Route path="/profile" element={<Profile />} />
       <Route path="/recipes" element={<Recipes />} />
       <Route path="/recipe/:id" element={<RecipeDetails />} />
+      <Route path="/restaurants" element={<Restaurants />} />
     </Routes>
   );
 };
