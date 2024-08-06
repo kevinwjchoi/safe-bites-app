@@ -2,7 +2,6 @@
 
 export const fetchRecipes = async (dataobj) => {
   const apiKey = process.env.REACT_APP_SPOONACULAR_API_KEY;
-
   const baseUrl = "https://api.spoonacular.com/recipes/complexSearch";  
 
   const url = new URL(baseUrl);

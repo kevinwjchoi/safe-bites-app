@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 def index(id=0):
     return render_template("index.html")
 
+
 #User routes 
 class GetUsers(Resource):
     def get(self):
@@ -227,6 +228,11 @@ class GetRestaurantNearbyResource(Resource):
         location = request.args.get('location')
         term = request.args.get('term', 'restaurant')
         categories = request.args.get('categories')
+
+        YELP_API_KEY = os.getenv('YELP_API_KEY')
+
+        if not location:
+            return {'error': 'Location parameter is required'}, 400
         
         url = 'https://api.yelp.com/v3/businesses/search'
         headers = {'Authorization': f'Bearer {YELP_API_KEY}'}
@@ -244,6 +250,8 @@ class GetRestaurantNearbyResource(Resource):
             return jsonify(data)
         else:
             return jsonify({'error': 'Failed to fetch data from Yelp'}), response.status_code
+ 
+
 
 
 #User API Resources

@@ -1,8 +1,7 @@
 
 export const fetchNearbyRestaurants = async (dataobj) => {
-    const apiKey='r8aJAMfTwsYTipG_ma3yhN1PpqzQkzr3BQyaBFMoNaqNdZ-VksySigHdF12cTGUffLAGLFqfBKiUhhOM6KG0rrxSWJB3dN4E-kyoyPXZG4WmfBVE_zRXlKlVD-SuZnYx'
+    const apiKey = process.env.REACT_APP_YELP_API_KEY;
     const baseUrl = 'https://api.yelp.com/v3/businesses/search';
-    console.log(apiKey)
     
     const url = new URL(baseUrl);
     url.search = new URLSearchParams({
@@ -34,7 +33,7 @@ export const fetchNearbyRestaurants = async (dataobj) => {
 };
 
 export const fetchRestaurantDetails = async (id) => {
-    const apiKey = process.env.YELP_API_KEY || 'r8aJAMfTwsYTipG_ma3yhN1PpqzQkzr3BQyaBFMoNaqNdZ-VksySigHdF12cTGUffLAGLFqfBKiUhhOM6KG0rrxSWJB3dN4E-kyoyPXZG4WmfBVE_zRXlKlVD-SuZnYx';
+    const apiKey = process.env.REACT_APP_YELP_API_KEY;
     const baseUrl = `https://api.yelp.com/v3/businesses/${id}`;
   
     try {
