@@ -3,13 +3,13 @@ from flask_restful import Resource, reqparse
 
 # Local imports
 from config import app, db, api
-from models import User, Recipe, Restaurant
+from models import User, Recipe, Restaurant, UserRestaurant
 from sqlalchemy import and_
 from flask import render_template, request, make_response, jsonify, session
 import logging
 import requests
 import os 
-
+import json
 
 
 
@@ -162,6 +162,9 @@ class UpdateProfile(Resource):
         db.session.commit()
 
         return {'message': 'Profile updated successfully'}, 200
+    
+
+
 
 #Recipe routes
 class RecipeSearchResource(Resource):
@@ -221,6 +224,10 @@ class RecipeResource(Resource):
         if recipe:
             return jsonify(recipe.to_dict())
         return {'error': 'Recipe not found'}, 404
+    
+
+
+
 
 # Restaurant Routes 
 class GetRestaurantNearbyResource(Resource):
@@ -250,9 +257,88 @@ class GetRestaurantNearbyResource(Resource):
             return jsonify(data)
         else:
             return jsonify({'error': 'Failed to fetch data from Yelp'}), response.status_code
+        
+
+
  
+# UserRestaurant Routes
+def favorite_yelp_restaurant(yelp_data, user_id):
 
 
+        # Associate restaurant with user in UserRestaurant table
+    user_restaurant = UserRestaurant.query.filter_by(user_id=user_id, restaurant_id=yelp_data['id']).first()
+    if user_restaurant is None:
+        user_restaurant = UserRestaurant(
+            user_id=user_id,
+            restaurant_id=yelp_data['id'],
+            name=yelp_data['name'],
+            image_url=yelp_data['image_url'],
+            rating=yelp_data['rating'],
+            address=' '.join(yelp_data['location']['display_address'])
+        )
+        db.session.add(user_restaurant)
+        db.session.commit()
+
+class FavoriteRestaurantResource(Resource):
+    def post(self):
+        data = request.get_json()
+        user_id = data.pop('user_id')
+        try:
+            favorite_yelp_restaurant(data, user_id)
+            return {'message': 'Restaurant was favorited successfully'}, 201
+        except Exception as e:
+            return {'message': str(e)}, 400
+
+
+#
+def save_yelp_restaurant(yelp_data):
+    # Retrieve or create the restaurant
+    restaurant = Restaurant.query.filter_by(id=yelp_data['id']).first()
+    if restaurant is None:
+        restaurant = Restaurant(id=yelp_data['id'])
+    
+    # Update restaurant details
+    restaurant.name = yelp_data['name']
+    restaurant.address = ' '.join(yelp_data['location']['display_address'])
+    restaurant.cuisine_type = ', '.join(category['title'] for category in yelp_data.get('categories', []))
+    restaurant.rating = yelp_data.get('rating')
+    restaurant.image_url = yelp_data.get('image_url')
+    restaurant.hours_of_operation = json.dumps(yelp_data.get('hours', []))  # Convert JSON to string
+    restaurant.menu_url = yelp_data.get('attributes', {}).get('menu_url')
+    restaurant.display_phone = yelp_data.get('display_phone')
+    
+    # Save restaurant to the database
+    db.session.add(restaurant)
+    db.session.commit()
+
+class SaveRestaurantResource(Resource):
+    def get(self, id):
+        # Fetch restaurant details by restaurant_id
+        restaurant = Restaurant.query.get(id)
+        if restaurant:
+            return jsonify(restaurant.to_dict())
+        else:
+            return {"error": "Restaurant not found"}, 404
+
+    def post(self):
+        data = request.get_json()
+        try:
+            save_yelp_restaurant(data)  # Pass user_id to the save function
+            return {'message': 'Restaurant saved successfully'}, 201
+        except Exception as e:
+            return {'message': str(e)}, 400
+
+class UpdateRestaurantResource(Resource):
+    def post(self):
+        yelp_data = request.json  # Get the Yelp data from the POST request
+        if not yelp_data:
+            return {'message': 'No data provided'}, 400
+        
+        try:
+            save_yelp_restaurant(yelp_data)
+            return {'message': 'Restaurant data updated successfully'}, 200
+        except Exception as e:
+            return {'message': str(e)}, 500
 
 #User API Resources
 api.add_resource(GetUsers, '/users', endpoint='/users')
@@ -268,6 +354,12 @@ api.add_resource(RecipeResource, '/recipe')
 
 #Restaurant API Resources 
 api.add_resource(GetRestaurantNearbyResource, '/restaurants/nearby')
+api.add_resource(UpdateRestaurantResource, '/update_restaurant')
+api.add_resource(SaveRestaurantResource, '/save_yelp_restaurant')
+
+#UserRestaurant Resources
+api.add_resource(FavoriteRestaurantResource, '/favorite_restaurant', endpoint='/favorite_restaurant')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

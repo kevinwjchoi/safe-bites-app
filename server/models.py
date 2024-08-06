@@ -11,7 +11,7 @@ from config import db, bcrypt
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
-    #add serialize_rules later 
+    serialize_rules = ("-user_restaurant.user",)
     
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     username = db.Column(db.String(25), nullable=False, unique=True)
@@ -20,6 +20,8 @@ class User(db.Model, SerializerMixin):
     diet = db.Column(db.Text) 
     intolerance = db.Column(db.Text)  
     cuisine = db.Column(db.Text) 
+
+    user_restaurant = db.relationship('UserRestaurant', back_populates='user', lazy=True, cascade='all, delete-orphan')
 
     @validates('username')
     def validate_username(self, key, username):
@@ -107,8 +109,10 @@ class User(db.Model, SerializerMixin):
     def __repr__(self):
         return f'ID: {self.id}, User: {self.username}, Email: {self.email}'
     
-class Recipe(db.Model):
+class Recipe(db.Model, SerializerMixin):
     __tablename__ = 'recipes'
+
+    # serialize_rules = (('-user_recipe',),)
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     name = db.Column(db.String, nullable=False)
@@ -150,17 +154,25 @@ class Recipe(db.Model):
         return f'ID: {self.id}, Name: {self.name}, Cuisine: {self.cuisine}, Rating: {self.rating}'
 
 
-class Restaurant(db.Model):
+class Restaurant(db.Model, SerializerMixin):
     __tablename__ = 'restaurants'
 
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    name = db.Column(db.String(100), nullable=False)
-    address = db.Column(db.Text, nullable=False)
-    cusuine_type = db.Column(db.String)
-    rating = db.Column(db.Integer)
+    serialize_rules = ('-user_restaurant',)
+
+    id = db.Column(db.String(255), primary_key=True) 
+    name = db.Column(db.String(255), nullable=False)
+    address = db.Column(db.String(255), nullable=False)
+    cuisine_type = db.Column(db.String(255), nullable=True)
+    rating = db.Column(db.Float, nullable=True)
+    image_url = db.Column(db.String(255), nullable=True)
+    hours_of_operation = db.Column(db.Text, nullable=True)  
+    menu_url = db.Column(db.String(255), nullable=True)
+    display_phone = db.Column(db.String(50), nullable=True) 
+
+    user_restaurant = db.relationship('UserRestaurant', back_populates='restaurant', lazy=True, cascade='all, delete-orphan')
 
     @validates('name')
-    def validate__name(self, key, name):
+    def validate_name(self, key, name):
         if not name or len(name) > 100:
             raise ValueError('Name must be between 1 and 100 characters long')
         return name
@@ -182,6 +194,39 @@ class Restaurant(db.Model):
         if rating is not None and (rating < 1 or rating > 5):
             raise ValueError('Rating must be an integer between 1 and 5')
         return rating
-    
+
     def __repr__(self):
-        return f'ID: {self.id} , Name: {self.name}, Address: {self.address}, Cuisine: {self.cusuine_type}, Rating: {self.rating}'
+        return (f'ID: {self.id}, Name: {self.name}, Address: {self.address}, '
+                f'Cuisine: {self.cuisine_type}, Rating: {self.rating}, '
+                f'Image URL: {self.image_url}, Hours: {self.hours_of_operation}, '
+                f'Menu URL: {self.menu_url}, Phone: {self.display_phone}')
+
+class UserRestaurant(db.Model, SerializerMixin):
+    __tablename__ = 'user_restaurant'
+
+    serialize_rules = ("-user.user_restaurant", "-restaurant.user_restaurant",)
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    restaurant_id = db.Column(db.String, db.ForeignKey('restaurants.id'), nullable=False)
+    name = db.Column(db.String(200), nullable=False)
+    image_url = db.Column(db.String, nullable=True)
+    rating = db.Column(db.Float, nullable=True)
+    address = db.Column(db.String, nullable=True)
+
+    user = db.relationship('User', back_populates='user_restaurant')
+    restaurant = db.relationship('Restaurant', back_populates='user_restaurant')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'restaurant_id': self.restaurant_id,
+            'name': self.name,
+            'image_url': self.image_url,
+            'rating': self.rating,
+            'address': self.address
+        }
+
+    def __repr__(self):
+        return f'ID: {self.id}, User ID: {self.user_id}, Restaurant ID: {self.restaurant_id}, Rating: {self.rating}'
