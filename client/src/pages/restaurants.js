@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, CircularProgress, Button } from '@mui/material';
-import { useRestaurantState, useRestaurantDispatch } from '../RestaurantContext';
+import { useRestaurantContext } from '../RestaurantContext';
 import RestaurantSearchForm from '../components/RestaurantSearchForm';
 import RestaurantCards from '../components/RestaurantCards';
 import { useNavigate } from 'react-router-dom';
@@ -8,9 +8,7 @@ import { useTheme } from '@mui/material/styles';
 
 const Restaurants = () => {
   const theme = useTheme();
-  const { restaurants, status, error } = useRestaurantState();
-  const { fetchRestaurants } = useRestaurantDispatch();
-  const [showForm, setShowForm] = React.useState(true);
+  const { restaurants, status, error, showForm, setShowForm, resetState } = useRestaurantContext();
   const navigate = useNavigate();
 
   const handleViewDetails = (id) => {
@@ -18,13 +16,12 @@ const Restaurants = () => {
   };
 
   const handleBackToRestaurants = () => {
-    setShowForm(true);
-    fetchRestaurants(); // You can adjust this call based on your reset logic
+    resetState();
+    navigate('/restaurants');
   };
 
-  const handleSearch = (dataobj) => {
+  const handleSearch = () => {
     setShowForm(false);
-    fetchRestaurants(dataobj);
   };
 
   return (

@@ -9,9 +9,12 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState(null);
+  const [sessionChecked, setSessionChecked] = useState(false); // Track if session has been checked
 
   // Function to check user session
   const checkSession = async () => {
+    if (sessionChecked) return true; // Avoid redundant checks
+
     setStatus('loading');
     try {
       const response = await fetch('/check_session'); 
@@ -19,6 +22,7 @@ export const UserProvider = ({ children }) => {
       if (response.ok) {
         setUser(data);
         setStatus('succeeded');
+        setSessionChecked(true); // Mark session as checked
         return true; // Return true if authenticated
       } else {
         setError(data.error);

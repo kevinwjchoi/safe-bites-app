@@ -8,6 +8,7 @@ import Profile from './pages/Profile';
 import Recipes from './pages/Recipes';
 import RecipeDetails from './pages/RecipeDetails';
 import Restaurants from './pages/Restaurants';
+import RestaurantDetails from './pages/RestaurantDetails';
 import Layout from './components/Layout';
 import { lightTheme, darkTheme } from './styles/theme';
 import { UserProvider, useUserDispatch } from './UserContext'; 
@@ -43,6 +44,7 @@ const AppRoutes = () => {
       <Route path="/recipes" element={<Recipes />} />
       <Route path="/recipe/:id" element={<RecipeDetails />} />
       <Route path="/restaurants" element={<Restaurants />} />
+      <Route path="/restaurant/:id" element={<RestaurantDetails />} />
     </Routes>
   );
 };

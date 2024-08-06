@@ -1,35 +1,46 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { fetchNearbyRestaurants } from '../src/services/yelpApi'
+import React, { createContext, useState, useContext } from 'react';
+import { fetchNearbyRestaurants } from './services/yelpApi';
 
+// Create context
 const RestaurantContext = createContext();
-const RestaurantDispatchContext = createContext();
 
+// Create a provider component
 export const RestaurantProvider = ({ children }) => {
   const [restaurants, setRestaurants] = useState([]);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState(null);
+  const [showForm, setShowForm] = useState(true);
 
-  const fetchRestaurants = useCallback(async (dataobj) => {
+  const getRestaurants = async ( dataobj ) => {
     setStatus('loading');
-    setError(null);
     try {
-      const data = await fetchNearbyRestaurants(dataobj);
-      setRestaurants(data.businesses);
+      const fetchedRestaurants = await fetchNearbyRestaurants(dataobj);
+      setRestaurants(fetchedRestaurants.businesses);
+      setShowForm(false);
       setStatus('succeeded');
-    } catch (err) {
-      setError(err.message);
+    } catch (error) {
+      setError(error.message);
       setStatus('failed');
     }
-  }, []);
+  };
+
+  const resetState = () => {
+    setRestaurants([]);
+    setError(null);
+    setShowForm(true);
+  };
 
   return (
-    <RestaurantContext.Provider value={{ restaurants, status, error }}>
-      <RestaurantDispatchContext.Provider value={{ fetchRestaurants }}>
+    <RestaurantContext.Provider value={{ restaurants, getRestaurants, status, error , setShowForm, showForm, resetState}}>
         {children}
-      </RestaurantDispatchContext.Provider>
     </RestaurantContext.Provider>
   );
 };
 
-export const useRestaurantState = () => useContext(RestaurantContext);
-export const useRestaurantDispatch = () => useContext(RestaurantDispatchContext);
+
+
+// Custom hooks for using context
+export const useRestaurantContext = () => {
+  return useContext(RestaurantContext);
+
+}

@@ -1,32 +1,86 @@
 import React from 'react';
-import { Button, TextField, Box } from '@mui/material';
+import { TextField, Button, Typography, FormControl } from '@mui/material';
+import { useRestaurantContext } from '../RestaurantContext';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 
 const RestaurantSearchForm = ({ handleSearch }) => {
-  const [query, setQuery] = React.useState('');
+  const { getRestaurants } = useRestaurantContext();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    handleSearch({ query });
+  const initialValues = {
+    location: 'new york',
+    term: 'restaurant',
+    categories: 'italian'
+  };
+
+  const handleSubmit = async (values, { setSubmitting }) => {
+    const dataobj = {
+      location: values.location,
+      term: values.term,
+      categories: values.categories
+    };
+    await getRestaurants(dataobj);
+    handleSearch();
+    setSubmitting(false);
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-      <TextField
-        variant="outlined"
-        margin="normal"
-        fullWidth
-        id="query"
-        label="Search Restaurants"
-        name="query"
-        autoComplete="query"
-        autoFocus
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-      <Button type="submit" fullWidth variant="contained" color="primary">
-        Search
-      </Button>
-    </Box>
+    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+      {({ isSubmitting }) => (
+        <Form>
+          <Typography variant="h6" gutterBottom>
+            Search for Restaurants
+          </Typography>
+          
+          <Field name="location">
+            {({ field }) => (
+              <FormControl fullWidth margin="normal">
+                <TextField
+                  {...field}
+                  label="Search location"
+                  variant="outlined"
+                />
+                <ErrorMessage name="location" component="div" style={{ color: 'red' }} />
+              </FormControl>
+            )}
+          </Field>
+          
+          <Field name="term">
+            {({ field }) => (
+              <FormControl fullWidth margin="normal">
+                <TextField
+                  {...field}
+                  label="Search term"
+                  variant="outlined"
+                />
+                <ErrorMessage name="term" component="div" style={{ color: 'red' }} />
+              </FormControl>
+            )}
+          </Field>
+          
+          <Field name="categories">
+            {({ field }) => (
+              <FormControl fullWidth margin="normal">
+                <TextField
+                  {...field}
+                  label="Categories"
+                  variant="outlined"
+                />
+                <ErrorMessage name="categories" component="div" style={{ color: 'red' }} />
+              </FormControl>
+            )}
+          </Field>
+
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={isSubmitting}
+          >
+            Search
+          </Button>
+        </Form>
+      )}
+    </Formik>
   );
 };
 
