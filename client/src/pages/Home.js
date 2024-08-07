@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { Container, Typography } from '@mui/material';
 import { useUserState, useUserDispatch } from '../UserContext';
+import { RestaurantCarousel } from '../components/RestaurantCarousel';
 import '../index.css'; 
 
 const Home = () => {
@@ -20,7 +21,8 @@ const Home = () => {
         Welcome, {user ? capFirstLetter(user.username) : 'Guest'}
       </Typography>
       <Typography variant="body1" paragraph>
-        {/* Add more content here if needed */}
+        <h2>Glance at your favorite restaurants</h2>
+        <RestaurantCarousel />
       </Typography>
     </Container>
   );

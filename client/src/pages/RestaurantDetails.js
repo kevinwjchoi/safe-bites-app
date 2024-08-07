@@ -25,7 +25,6 @@ const RestaurantDetails = () => {
     fetchDetails();
   }, [id]);
 
-  console.log(restaurant)
 
   const handleBackToRestaurants = () => {
     navigate('/restaurants');

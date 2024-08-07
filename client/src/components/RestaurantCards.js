@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardMedia, Typography, Button, Grid } from '@mui/material';
 
-const RestaurantCards = ({ restaurants, handleViewDetails }) => {
+const RestaurantCards = ({ restaurants, handleViewDetails, handleFavorite}) => {
   return (
     <Grid container spacing={4}>
       {restaurants.map((restaurant) => (
@@ -25,6 +25,9 @@ const RestaurantCards = ({ restaurants, handleViewDetails }) => {
               </Typography>
               <Button size="small" color="primary" onClick={() => handleViewDetails(restaurant.id)}>
                 View Details
+              </Button>
+              <Button size="small" color="secondary" onClick={() => handleFavorite(restaurant.id)}>
+                Favorite
               </Button>
             </CardContent>
           </Card>
