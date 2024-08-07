@@ -260,11 +260,9 @@ class GetRestaurantNearbyResource(Resource):
         
 
 
- 
+
 # UserRestaurant Routes
 def favorite_yelp_restaurant(yelp_data, user_id):
-
-
         # Associate restaurant with user in UserRestaurant table
     user_restaurant = UserRestaurant.query.filter_by(user_id=user_id, restaurant_id=yelp_data['id']).first()
     if user_restaurant is None:
@@ -278,6 +276,18 @@ def favorite_yelp_restaurant(yelp_data, user_id):
         )
         db.session.add(user_restaurant)
         db.session.commit()
+
+class GetFavoriteRestaunts(Resource):
+    def get(self):
+        if 'user_id' in session and session['user_id'] is not None:
+            user_id = session['user_id']
+            favorite_restaurants = UserRestaurant.query.filter_by(user_id=user_id).all()
+
+            return make_response(jsonify([favorite_restaurant.to_dict() for favorite_restaurant in favorite_restaurants]),
+            200,
+            )
+        return {'error': 'Unauthorized'}, 401
+
 
 class FavoriteRestaurantResource(Resource):
     def post(self):
@@ -359,6 +369,7 @@ api.add_resource(SaveRestaurantResource, '/save_yelp_restaurant')
 
 #UserRestaurant Resources
 api.add_resource(FavoriteRestaurantResource, '/favorite_restaurant', endpoint='/favorite_restaurant')
+api.add_resource(GetFavoriteRestaunts, '/get_favorite_restaurants', endpoint='/get_favorite_restaurants')
 
 
 if __name__ == '__main__':

@@ -171,6 +171,20 @@ class Restaurant(db.Model, SerializerMixin):
 
     user_restaurant = db.relationship('UserRestaurant', back_populates='restaurant', lazy=True, cascade='all, delete-orphan')
 
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'address': self.address,
+            'cuisine_type': self.cuisine_type,
+            'rating': self.rating,
+            'image_url': self.image_url,
+            'hours_of_operation': self.hours_of_operation,
+            'menu_url': self.menu_url,
+            'display_phone': self.display_phone
+        }
+    
     @validates('name')
     def validate_name(self, key, name):
         if not name or len(name) > 100:
