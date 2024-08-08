@@ -3,12 +3,12 @@ import Slider from 'react-slick';
 import { Card, CardContent, Typography, CardMedia } from '@mui/material';
 import 'slick-carousel/slick/slick-theme.css';
 
-export const RestaurantCarousel = () => {
+export const ViewedRestaurantCarousel = () => {
     const [restaurants, setRestaurants] = useState([]);
 
     useEffect(() => {
       const fetchRestaurants = async () => {
-        const response = await fetch('/get_favorite_restaurants'); 
+        const response = await fetch('/get_viewed_restaurants'); 
         const data = await response.json();
         setRestaurants(data);
       };
@@ -51,6 +51,35 @@ export const RestaurantCarousel = () => {
         ]
       };
     
+      if (restaurants.length === 0) {
+        return <Typography variant="h8">Oops! There is nothing to see here~</Typography>;
+      }
+    
+      if (restaurants.length <= 3) {
+        return (
+          <div>
+            {restaurants.map((restaurant, index) => (
+              <Card key={index} style={{ margin: '10px' }}>
+                <CardMedia
+                  component="img"
+                  style={{ height: '200px', width: 'auto', objectFit: 'cover' }}
+                  image={restaurant.image_url}
+                  alt={restaurant.name}
+                />
+                <CardContent>
+                  <Typography gutterBottom variant="h5" component="div">
+                    {restaurant.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {restaurant.description}
+                  </Typography>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        );
+      }
+    
       return (
         <Slider {...settings}>
           {restaurants.map((restaurant, index) => (
@@ -62,7 +91,7 @@ export const RestaurantCarousel = () => {
                 alt={restaurant.name}
               />
               <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
+                <Typography gutterBottom variant="h6" component="div">
                   {restaurant.name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -74,5 +103,3 @@ export const RestaurantCarousel = () => {
         </Slider>
       );
     };
-
-
