@@ -1,3 +1,4 @@
+import datetime
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates, relationship
@@ -112,7 +113,7 @@ class User(db.Model, SerializerMixin):
 class Recipe(db.Model, SerializerMixin):
     __tablename__ = 'recipes'
 
-    # serialize_rules = (('-user_recipe',),)
+    # serialize_rules = ('-user_recipe',)
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     name = db.Column(db.String, nullable=False)
@@ -231,6 +232,30 @@ class UserRestaurant(db.Model, SerializerMixin):
     user = db.relationship('User', back_populates='user_restaurant')
     restaurant = db.relationship('Restaurant', back_populates='user_restaurant')
 
+    @validates('name')
+    def validate_name(self, key, name):
+        if not name:
+            raise ValueError("Name cannot be empty.")
+        if len(name) > 200:
+            raise ValueError("Name cannot be longer than 200 characters.")
+        return name
+
+    @validates('rating')
+    def validate_rating(self, key, rating):
+        if rating is not None:  # Rating is nullable, so we check if it's provided
+            if rating < 0 or rating > 5:
+                raise ValueError("Rating must be between 0 and 5.")
+            if rating % 0.5 != 0:
+                raise ValueError("Rating must be in increments of 0.5.")
+        return rating
+
+    @validates('address')
+    def validate_address(self, key, address):
+        if address and len(address) > 255:
+            raise ValueError("Address cannot be longer than 255 characters.")
+        return address
+
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -244,3 +269,51 @@ class UserRestaurant(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'ID: {self.id}, User ID: {self.user_id}, Restaurant ID: {self.restaurant_id}, Rating: {self.rating}'
+
+class Review(db.Model, SerializerMixin):
+    __tablename__ = 'reviews'
+
+    id = db.Column(db.Integer, primary_key=True)
+    recipe_id = db.Column(db.Ineger, db.ForeignKey('recipes.id'), nullable=False)
+    title = db.Column(db.String, nullable=False)
+    comment = db.Column(db.Text, nullable=False)
+    rating = db.Column(db.Float, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)    
+
+    @validates('title')
+    def validate_title(self, key, title):
+        if not title:
+            raise ValueError("Title cannot be empty.")
+        if len(title) > 255:
+            raise ValueError("Title cannot be longer than 255 characters.")
+        return title
+
+    @validates('comment')
+    def validate_comment(self, key, comment):
+        if not comment:
+            raise ValueError("Comment cannot be empty.")
+        return comment
+
+    @validates('rating')
+    def validate_rating(self, key, rating):
+        if rating < 0 or rating > 5:
+            raise ValueError("Rating must be between 0 and 5.")
+        if rating % 0.5 != 0:
+            raise ValueError("Rating must be in increments of 0.5.")
+        return rating
+        
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'recipe_id': self.recipe_id,
+            'title': self.title,
+            'comment': self.comment,
+            'rating': self.rating,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
+    
+    def __repr__(self):
+        return f'ID: {self.id}, Title: {self.title}, RecipeID: {self.recipe_id}, Created: {self.created_at}' 

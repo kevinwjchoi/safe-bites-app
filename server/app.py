@@ -258,6 +258,13 @@ class GetRestaurantNearbyResource(Resource):
         else:
             return jsonify({'error': 'Failed to fetch data from Yelp'}), response.status_code
         
+class GetRestaurants(Resource):
+    def get(self):
+            viewed_restaurants = Restaurant.query.all()
+
+            return make_response(jsonify([viewed_restaurant.to_dict() for viewed_restaurant in viewed_restaurants]),
+            200,
+            )
 
 
 
@@ -366,6 +373,7 @@ api.add_resource(RecipeResource, '/recipe')
 api.add_resource(GetRestaurantNearbyResource, '/restaurants/nearby')
 api.add_resource(UpdateRestaurantResource, '/update_restaurant')
 api.add_resource(SaveRestaurantResource, '/save_yelp_restaurant')
+api.add_resource(GetRestaurants, '/get_viewed_restaurants', endpoint='/get_viewed_restaurants')
 
 #UserRestaurant Resources
 api.add_resource(FavoriteRestaurantResource, '/favorite_restaurant', endpoint='/favorite_restaurant')
