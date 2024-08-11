@@ -3,13 +3,14 @@ from flask_restful import Resource, reqparse
 
 # Local imports
 from config import app, db, api
-from models import User, Recipe, Restaurant, UserRestaurant
+from models import User, Recipe, Restaurant, UserRestaurant, Review
 from sqlalchemy import and_
 from flask import render_template, request, make_response, jsonify, session
 import logging
 import requests
 import os 
 import json
+from sqlalchemy.exc import IntegrityError
 
 
 
@@ -356,6 +357,61 @@ class UpdateRestaurantResource(Resource):
             return {'message': 'Restaurant data updated successfully'}, 200
         except Exception as e:
             return {'message': str(e)}, 500
+        
+
+# Review Routes 
+
+class GetAllMyReviews(Resource):
+    def get(self):
+        if 'user_id' in session and session['user_id'] is not None:
+            user_id = session['user_id']
+            my_reviews = Review.query.filter_by(user_id=user_id).all()
+
+            return make_response(
+                jsonify([reviews.to_dict() for reviews in my_reviews]), 200
+            )
+
+class CreateReview(Resource):
+    def post(self):
+        data = request.get_json()
+
+        required_fields = ['recipe_id', 'title', 'comment', 'rating']
+        for field in required_fields:
+            if field not in data:
+                return {'error': f'{field} is required'}, 422
+            
+        if 'user_id' not in session or session['user_id'] is None:
+            return {'error': 'User must be logged in to submit a review'}, 401
+
+        user_id = session['user_id']
+        recipe_id = data.get('recipe_id')
+        title = data.get('title')
+        comment = data.get('comment')
+        rating = data.get('rating')
+
+        if not isinstance(rating, (int, float)) or rating < 0 or rating > 5 or rating % 0.5 != 0:
+            return {'error': 'Rating must be a float between 0 and 5, in increments of 0.5'}, 422
+
+        new_review = Review(
+            user_id = user_id,
+            recipe_id = recipe_id,
+            title = title,
+            comment = comment,
+            rating = rating
+        )
+        try:
+            db.session.add(new_review)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            return {'error': 'An error occurred while saving the review. Please try again.'}, 500
+
+        return {'message': 'Review created successfully', 'review': new_review.to_dict()}, 201
+            
+
+
+
+
 
 #User API Resources
 api.add_resource(GetUsers, '/users', endpoint='/users')

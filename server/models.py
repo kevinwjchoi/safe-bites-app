@@ -274,6 +274,7 @@ class Review(db.Model, SerializerMixin):
     __tablename__ = 'reviews'
 
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     recipe_id = db.Column(db.Ineger, db.ForeignKey('recipes.id'), nullable=False)
     title = db.Column(db.String, nullable=False)
     comment = db.Column(db.Text, nullable=False)
