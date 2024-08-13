@@ -2,15 +2,23 @@ import React from 'react';
 import { TextField, Button, Typography, FormControl } from '@mui/material';
 import { useRestaurantContext } from '../RestaurantContext';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+
 
 const RestaurantSearchForm = ({ handleSearch }) => {
   const { getRestaurants } = useRestaurantContext();
 
   const initialValues = {
-    location: 'new york',
+    location: '',
     term: 'restaurant',
-    categories: 'italian'
+    categories: ''
   };
+
+  const validationSchema = Yup.object({
+    location: Yup.string()
+      .required('Location is required'),
+    categories: Yup.string(),
+  });
 
   const handleSubmit = async (values, { setSubmitting }) => {
     const dataobj = {
@@ -24,7 +32,7 @@ const RestaurantSearchForm = ({ handleSearch }) => {
   };
 
   return (
-    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+    <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema} >
       {({ isSubmitting }) => (
         <Form>
           <Typography variant="h6" gutterBottom>
@@ -44,25 +52,12 @@ const RestaurantSearchForm = ({ handleSearch }) => {
             )}
           </Field>
           
-          <Field name="term">
-            {({ field }) => (
-              <FormControl fullWidth margin="normal">
-                <TextField
-                  {...field}
-                  label="Search term"
-                  variant="outlined"
-                />
-                <ErrorMessage name="term" component="div" style={{ color: 'red' }} />
-              </FormControl>
-            )}
-          </Field>
-          
           <Field name="categories">
             {({ field }) => (
               <FormControl fullWidth margin="normal">
                 <TextField
                   {...field}
-                  label="Categories"
+                  label="Cuisine"
                   variant="outlined"
                 />
                 <ErrorMessage name="categories" component="div" style={{ color: 'red' }} />

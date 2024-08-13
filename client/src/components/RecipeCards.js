@@ -20,7 +20,7 @@ const RecipeCards = ({ recipes, handleViewDetails }) => {
               </Typography>
               <Button
                 variant="contained"
-                color="primary"
+                color="secondary"
                 style={{ marginTop: '5px', marginBottom: '5px', alignSelf: 'center' }} 
                 onClick={() => handleViewDetails(recipe.id)}
               >

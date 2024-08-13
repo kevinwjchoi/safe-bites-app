@@ -57,7 +57,7 @@ const Layout = ({ children, mode, onModeChange }) => {
               <MenuIcon />
             </IconButton>
             <Typography variant="h6" component={Link} to="/home" sx={{ flexGrow: 1, textDecoration: 'none', color: 'inherit' }}>
-              SafeBites
+              SAFEBITES
             </Typography>
             {user && (
               <>
@@ -88,7 +88,7 @@ const Layout = ({ children, mode, onModeChange }) => {
           },
         }}
       >
-        <div style={{ padding: '16px' }}>
+        <div style={{ padding: '10px' }}>
           <BasicRecipeSearchForm handleSearch={() => setDrawerOpen(false)} />
         </div>
         <List>

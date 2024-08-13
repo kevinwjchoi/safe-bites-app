@@ -1,3 +1,6 @@
+import { fetchRestaurantDetails } from './services/yelpApi'
+
+
 export const handleViewDetails = async (id, checkSession, user, navigate) => {
     // Check if user is authenticated
     const isAuthenticated = await checkSession();
@@ -8,8 +11,7 @@ export const handleViewDetails = async (id, checkSession, user, navigate) => {
   
     // Fetch restaurant details from the API
     try {
-      const response = await fetch(`/restaurant/${id}`); // Replace with your API endpoint
-      const restaurant = await response.json();
+      const restaurant = await fetchRestaurantDetails(id);
   
       // Check if restaurant exists
       if (!restaurant) {

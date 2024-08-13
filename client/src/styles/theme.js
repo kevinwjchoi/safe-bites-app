@@ -1,22 +1,21 @@
 import { createTheme } from '@mui/material/styles';
 
-
 const lightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#79A76B', // Sage green
-      light: '#79A76B', // Sage garden
-      dark: '#4A5D23', // Darker sage green
+      main: '#c42300', // Primary color
+      light: '#ff5747', // Lighter shade of primary color
+      dark: '#8c1b00', // Darker primary color
     },
     secondary: {
-      main: '#FF9800', // Bold orange
-      light: '#FFB74D', // Lighter orange
-      dark: '#F57C00', // Darker orange
+      main: '#ff9800', // Bold orange
+      light: '#ffb74d', // Lighter orange
+      dark: '#f57c00', // Darker orange
     },
     background: {
-      default: '#C7D1C5', // Frosted Sage
-      paper: '#C7D1C5', // Frosted Sage
+      default: '#f5f5f5', // Light gray
+      paper: '#e0e0e0', // Off gray
     },
     text: {
       primary: '#212121', // Dark grey text
@@ -24,37 +23,36 @@ const lightTheme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Nunito", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Montserrat", "Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
-      fontWeight: 600,
+      fontWeight: 700, // Bold font weight
       fontSize: '2.5rem',
     },
     h2: {
-      fontWeight: 600,
+      fontWeight: 700, // Bold font weight
       fontSize: '2rem',
     },
     h4: {
-      fontWeight: 600,
+      fontWeight: 700, // Bold font weight
       fontSize: '2rem',
     },
     body1: {
-      fontWeight: 400,
+      fontWeight: 700, // Bold font weight
       fontSize: '1rem',
     },
     h6: {
-      fontWeight: 800,
+      fontWeight: 700, // Bold font weight
       fontSize: '1.5rem',
     }
   },
 });
-
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#007AFF', // Accent blue
-      light: '#4D9CFF', // Lighter blue
-      dark: '#0051A1', // Darker blue
+      main: '# ', // Updated primary color
+      light: '#FF6659', // Lighter shade of primary color
+      dark: '#C62828', // Darker primary color
     },
     background: {
       default: '#1E1E1E', // Primary background
@@ -65,33 +63,32 @@ const darkTheme = createTheme({
       secondary: '#A0A0A0', // Secondary text
     },
     secondary: {
-      main: '#FF9800', // Bold orange (same as light)
+      main: '#FF9800', // Bold orange
       light: '#FFB74D', // Lighter orange
       dark: '#F57C00', // Darker orange
     },
   },
   typography: {
-    fontFamily: '"Nunito", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Montserrat", "Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
-      fontWeight: 600,
+      fontWeight: 700, // Bold font weight
       fontSize: '2.5rem',
     },
     h2: {
-      fontWeight: 600,
+      fontWeight: 700, // Bold font weight
       fontSize: '2rem',
     },
     h4: {
-      fontWeight: 600,
+      fontWeight: 700, // Bold font weight
       fontSize: '2rem',
     },
     body1: {
-      fontWeight: 400,
+      fontWeight: 700, // Bold font weight
       fontSize: '1rem',
     },
     h6: {
-      fontWeight: 800,
+      fontWeight: 700, // Bold font weight
       fontSize: '1.5rem',
-
     }
   },
 });

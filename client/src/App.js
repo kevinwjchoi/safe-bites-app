@@ -14,6 +14,7 @@ import { lightTheme, darkTheme } from './styles/theme';
 import { UserProvider, useUserDispatch } from './UserContext'; 
 import { RecipeProvider } from './RecipeContext'; 
 import { RestaurantProvider } from './RestaurantContext'; 
+import { ReviewProvider } from './ReviewContext';
 import { useLocation } from 'react-router-dom';
 
 const AppRoutes = () => {
@@ -71,13 +72,15 @@ function App() {
     <UserProvider>
       <RecipeProvider>
         <RestaurantProvider>
-          <ThemeProvider theme={theme}>
-            <Router>
-              <Layout mode={mode} onModeChange={handleModeChange}>
-                <AppRoutes />
-              </Layout>
-            </Router>
-          </ThemeProvider>
+          <ReviewProvider>
+            <ThemeProvider theme={theme}>
+              <Router>
+                <Layout mode={mode} onModeChange={handleModeChange}>
+                  <AppRoutes />
+                </Layout>
+              </Router>
+            </ThemeProvider>
+          </ReviewProvider>
         </RestaurantProvider>
       </RecipeProvider>
     </UserProvider>

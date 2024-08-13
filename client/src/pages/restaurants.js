@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import { useUserState, useUserDispatch } from '../UserContext'; // Import custom hooks
 import { fetchRestaurantDetails } from '../services/yelpApi'
+import { handleViewDetails } from '../restaurantUtility';
 
 const Restaurants = () => {
   const theme = useTheme();
@@ -22,48 +23,11 @@ const Restaurants = () => {
     };
     verifySession();
   }, [checkSession]);
-    
   
-  const handleViewDetails = async (id) => {
-    // Check if user is authenticated
-    const isAuthenticated = await checkSession();
-    if (!isAuthenticated || !user || !user.id) {
-      console.error('User not authenticated or user data is missing');
-      return;
-    }
-  
-    // Fetch restaurant details from the API
-    try {
-      const restaurant = await fetchRestaurantDetails(id);
-  
-      // Check if restaurant exists
-      if (!restaurant) {
-        console.error('Restaurant not found');
-        return;
-      }
-  
-      // Save the restaurant data to the backend
-      const saveResponse = await fetch('/save_yelp_restaurant', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...restaurant, user_id: user.id }),  // Include user ID to track who saved it
-      });
-  
-      if (saveResponse.ok) {
-        console.log('Restaurant saved successfully!');
-      } else {
-        console.error('Failed to save restaurant:', await saveResponse.text());
-      }
-  
-      // Navigate to the restaurant details page with the restaurant data
-      navigate(`/restaurant/${id}`, { state: { restaurant } });
-    } catch (error) {
-      console.error('Error:', error);
-    }
+  const viewDetails = async (id) => {
+    await handleViewDetails(id, checkSession, user, navigate);
   };
-  
+
 
   const handleBackToRestaurants = () => {
     resetState();
@@ -132,7 +96,7 @@ const Restaurants = () => {
             </Typography>
           )}
           {status === 'succeeded' && restaurants.length > 0 && (
-            <RestaurantCards restaurants={restaurants} handleViewDetails={handleViewDetails} handleFavorite={handleFavorite} />
+            <RestaurantCards restaurants={restaurants} handleViewDetails={viewDetails} handleFavorite={handleFavorite} />
           )}
           {status === 'succeeded' && restaurants.length === 0 && (
             <Typography variant="body1">No restaurants found.</Typography>

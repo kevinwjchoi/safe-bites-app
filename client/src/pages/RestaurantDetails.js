@@ -47,11 +47,11 @@ const RestaurantDetails = () => {
         <Typography variant="h6">Phone Number: {restaurant.display_phone}</Typography>
         
         <Typography variant="h6">
-          Open right now: {restaurant.hours[0].is_open_now ? 'Yes' : 'No, it is closed right now'}
+        {restaurant.hours[0].is_open_now ? 'Is open' : 'Is closed'}
         </Typography>
         <Typography variant="h6">Price: {restaurant.price}</Typography>
         <Typography variant="h6">Rating: {restaurant.rating}</Typography>
-        <Typography variant="h6">Reviews:</Typography>
+
         {/* <ul>
           {restaurant.reviews.map((review) => (
             <li key={review.id}>

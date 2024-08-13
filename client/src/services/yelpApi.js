@@ -8,7 +8,7 @@ export const fetchNearbyRestaurants = async (dataobj) => {
         location: dataobj.location,
         term: dataobj.term,
         categories: dataobj.categories,
-        limit: 10,
+        limit: 20,
         apiKey: apiKey
     }).toString();
 

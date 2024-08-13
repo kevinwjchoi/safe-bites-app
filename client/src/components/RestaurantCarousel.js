@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import Slider from 'react-slick';
-import { Card, CardContent, Typography, CardMedia } from '@mui/material';
+import { Card, CardContent, Typography, CardMedia, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import 'slick-carousel/slick/slick-theme.css';
 import 'slick-carousel/slick/slick.css';
 
 export const RestaurantCarousel = () => {
   const [restaurants, setRestaurants] = useState([]);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -17,6 +20,10 @@ export const RestaurantCarousel = () => {
     fetchRestaurants();
   }, []);
 
+  const viewDetails = (id) => {
+    navigate(`/restaurant/${id}`)
+  };
+  
   const settings = {
     dots: true,
     infinite: true,
@@ -72,8 +79,17 @@ export const RestaurantCarousel = () => {
                 {restaurant.name}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {restaurant.description}
+                {restaurant.address} 
+                <br/>
+                Rating: {restaurant.rating}
               </Typography>
+              <Button
+                size="small"
+                color="primary"
+                onClick={() => viewDetails(restaurant.restaurant_id)}
+              >
+                View Details
+              </Button>
             </CardContent>
           </Card>
         ))}
@@ -96,8 +112,17 @@ export const RestaurantCarousel = () => {
               {restaurant.name}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {restaurant.description}
+              {restaurant.address} 
+              <br/>
+              Rating: {restaurant.rating}
             </Typography>
+            <Button
+                size="small"
+                color="primary"
+                onClick={() => viewDetails(restaurant.restaurant_id)}
+              >
+                View Details
+              </Button>
           </CardContent>
         </Card>
       ))}

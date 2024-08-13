@@ -1,8 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoginForm from '../components/LoginForm';
-import { Container, Typography, Paper, CircularProgress, Alert } from '@mui/material';
+import { Container, Typography, Paper, CircularProgress, Alert, Box } from '@mui/material';
 import { useUserState, useUserDispatch } from '../UserContext';
+import logo from '../images/safe-bites-logo.png';
 
 const Login = () => {
   const { status, error } = useUserState();
@@ -28,28 +29,47 @@ const Login = () => {
       setUser(userData);
       resetForm();
       navigate('/home');
-
     } catch (err) {
       setError(err.message);
     }
   };
 
   return (
-    <Container component="main" maxWidth="xs" sx={{ mt: 8, mb: 4 }}>
-      <Paper elevation={3} sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography variant="h1" component="h1" gutterBottom>
-          Login
-        </Typography>
-        <Typography variant="h8" align="center">
-        Discover recipes and restaurants tailored to your needs—whether it's dietary restrictions, specific cuisines, or personal preferences!
-        </Typography>
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+      sx={{ gap: 2 }} // Adjust gap between image and login container
+    >
+      <Box
+        sx={{
+          display: { xs: 'none', md: 'block' }, // Hide image on smaller screens
+          width: '40%', // Adjust width as needed
+          textAlign: 'center',
+          padding: 2,
+          marginRight: 1, // Adjust margin to reduce space between image and form
+        }}
+      >
+        <img src={logo} alt="Safe Bites Logo" style={{ maxWidth: '100%', height: 'auto' }} />
+      </Box>
 
-        {status === 'loading' && <CircularProgress sx={{ mt: 2 }} />}
-        {status === 'failed' && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+      <Container component="main" maxWidth="xs" sx={{ mt: 8, mb: 4 }}>
+        <Paper elevation={3} sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Typography variant="h1" component="h1" gutterBottom>
+            Login
+          </Typography>
+          <Typography variant="h10" align="center">
+            Discover recipes and restaurants tailored to your needs—whether it's dietary restrictions, specific cuisines, or personal preferences!
+          </Typography>
 
-        <LoginForm onSubmit={handleLogin} />
-      </Paper>
-    </Container>
+          {status === 'loading' && <CircularProgress sx={{ mt: 2 }} />}
+          {status === 'failed' && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+
+          <LoginForm onSubmit={handleLogin} />
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 
