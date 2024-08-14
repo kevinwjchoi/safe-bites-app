@@ -49,7 +49,7 @@ export const ReviewProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/delete_review/${id}`, {
+      const response = await fetch(`/delete_review/recipe/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
@@ -65,6 +65,37 @@ export const ReviewProvider = ({ children }) => {
     }
   };
 
+  const editReview = async (id, updatedReviewData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+        const response = await fetch(`/edit_review/recipe/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedReviewData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to edit review');
+        }
+
+        const updatedReview = await response.json();
+        setReviews(prevReviews =>
+            prevReviews.map(review => review.id === id ? updatedReview.review : review)
+        );
+
+    } catch (err) {
+        setError(err.message);
+    } finally {
+        setLoading(false);
+    }
+};
+
+
   // Function to reset state
   const resetState = () => {
     setReviews([]);
@@ -73,7 +104,7 @@ export const ReviewProvider = ({ children }) => {
   };
 
   return (
-    <ReviewContext.Provider value={{ reviews, fetchReviews, addReview, deleteReview, loading, error, showForm, setShowForm, resetState }}>
+    <ReviewContext.Provider value={{ reviews, fetchReviews, addReview, deleteReview, editReview, loading, error, showForm, setShowForm, resetState }}>
       {children}
     </ReviewContext.Provider>
   );

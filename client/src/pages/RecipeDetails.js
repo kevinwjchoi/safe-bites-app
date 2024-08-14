@@ -1,24 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Typography, CircularProgress, Card, CardContent, Button, Dialog, DialogTitle, DialogContent, IconButton, List, ListItem, ListItemText } from '@mui/material';
+import { Typography, CircularProgress, Card, CardContent, Button, Dialog, DialogTitle, DialogContent } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchRecipeDetails } from '../services/spoonacularApi';
 import { useReviewContext } from '../ReviewContext';
 import { useUserState, useUserDispatch } from '../UserContext';
 import RecipeReviewForm from '../components/RecipeReviewForm';
-import DeleteIcon from '@mui/icons-material/Delete';
+import RecipeReviewCard from '../components/RecipeReviewCard';
+import RecipeReviewEditForm from '../components/RecipeReviewEditForm';
 
 const RecipeDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useUserState();
     const { checkSession } = useUserDispatch();
-    const { reviews, fetchReviews, addReview, deleteReview, loading: reviewLoading, error: reviewError } = useReviewContext();
+    const { reviews, fetchReviews, addReview, deleteReview, editReview, loading: reviewLoading, error: reviewError } = useReviewContext();
 
     const [recipe, setRecipe] = useState(null);
     const [localError, setLocalError] = useState(null);
     const [localLoading, setLocalLoading] = useState(true);
     const [showReviewForm, setShowReviewForm] = useState(false);
     const [showReviews, setShowReviews] = useState(false);
+    const [editReviewData, setEditReviewData] = useState(null);
 
     // Ref to track if reviews have been fetched
     const reviewsFetched = useRef(false);
@@ -101,11 +103,28 @@ const RecipeDetails = () => {
         }
     };
 
+    const handleEditReview = (review) => {
+        setEditReviewData(review);
+    };
+
+    const handleEditReviewSave = async (updatedReview) => {
+        try {
+            await editReview(editReviewData.id, updatedReview);
+            setEditReviewData(null);
+            setShowReviews(true); // Refresh reviews after editing
+        } catch (error) {
+            console.error('Error editing review:', error.message);
+        }
+    };
+
+    const handleEditReviewCancel = () => {
+        setEditReviewData(null);
+    };
+
     if (localLoading) return <CircularProgress />;
     if (localError) return <Typography color="error">{localError}</Typography>;
     if (!recipe) return <Typography>No recipe details found</Typography>;
 
-    // Ensure reviews is an array
     const reviewList = Array.isArray(reviews) ? reviews : [];
 
     return (
@@ -171,6 +190,24 @@ const RecipeDetails = () => {
                 </DialogContent>
             </Dialog>
 
+            <Dialog
+                open={!!editReviewData}
+                onClose={handleEditReviewCancel}
+                fullWidth
+                maxWidth="sm"
+            >
+                <DialogTitle>Edit Review</DialogTitle>
+                <DialogContent>
+                    {editReviewData && (
+                        <RecipeReviewEditForm 
+                            review={editReviewData}
+                            onSave={handleEditReviewSave}
+                            onCancel={handleEditReviewCancel}
+                        />
+                    )}
+                </DialogContent>
+            </Dialog>
+
             {showReviews && (
                 <Card style={{ marginTop: '20px' }}>
                     <CardContent>
@@ -182,25 +219,15 @@ const RecipeDetails = () => {
                         ) : reviewList.length === 0 ? (
                             <Typography>No reviews yet, be the first to leave a review!</Typography>
                         ) : (
-                            <List>
-                                {reviewList.map(review => (
-                                    <ListItem key={review.id}>
-                                        <ListItemText
-                                            primary={review.title}
-                                            secondary={`${review.comment} - Rating: ${review.rating}`}
-                                        />
-                                        {user && review.user_id === user.id && (
-                                            <IconButton
-                                                edge="end"
-                                                aria-label="delete"
-                                                onClick={() => handleDeleteReview(review.id)}
-                                            >
-                                                <DeleteIcon />
-                                            </IconButton>
-                                        )}
-                                    </ListItem>
-                                ))}
-                            </List>
+                            reviewList.map(review => (
+                                <RecipeReviewCard 
+                                    key={review.id} 
+                                    review={review} 
+                                    onDelete={handleDeleteReview}
+                                    onEdit={handleEditReview}
+                                    user={user} 
+                                />
+                            ))
                         )}
                     </CardContent>
                 </Card>

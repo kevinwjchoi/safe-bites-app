@@ -50,22 +50,22 @@ const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '# ', // Updated primary color
+      main: '#007aff ', // Blue
       light: '#FF6659', // Lighter shade of primary color
       dark: '#C62828', // Darker primary color
     },
     background: {
-      default: '#1E1E1E', // Primary background
-      paper: '#2C2C2C', // Secondary background
+      default: '#414141', // Primary background
+      paper: '#373737', // Secondary background
     },
     text: {
       primary: '#E0E0E0', // Primary text
       secondary: '#A0A0A0', // Secondary text
     },
     secondary: {
-      main: '#FF9800', // Bold orange
-      light: '#FFB74D', // Lighter orange
-      dark: '#F57C00', // Darker orange
+      main: '#5c5c5e', // Gray
+      light: '#FFB74D', // 
+      dark: '#F57C00', // 
     },
   },
   typography: {

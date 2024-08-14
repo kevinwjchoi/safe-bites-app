@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, Card, CardContent, Snackbar, List, ListItem, ListItemText, Divider } from '@mui/material';
 import { useUserState } from '../UserContext';
+import { useReviewContext } from '../ReviewContext';
 import UpdateProfileInfoForm from '../components/UpdateProfileInfoForm';
 import ChangePasswordForm from '../components/ChangePasswordForm';
+import RecipeReviewEditForm from '../components/RecipeReviewEditForm';
+import RecipeReviewCard from '../components/RecipeReviewCard';
 import '../index.css';
 
 const Profile = () => {
@@ -11,6 +14,8 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
+    const { reviews, fetchReviews, addReview, deleteReview, editReview, loading: reviewLoading, error: reviewError } = useReviewContext();
+
 
     useEffect(() => {
         const fetchUser = async () => {
