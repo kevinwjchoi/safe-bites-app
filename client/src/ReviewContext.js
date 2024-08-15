@@ -24,6 +24,21 @@ export const ReviewProvider = ({ children }) => {
       setLoading(false);
     }
   };
+  
+  const fetchMyReviews = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+        const response = await fetch(`/get_all_my_reviews`);
+        const data = await response.json();
+        setReviews(data);
+        setShowForm(false);
+    } catch (err) {
+        setError(err.message);
+    } finally {
+        setLoading(false);
+    }
+  };
 
   const addReview = async (id, reviewData) => {
     setLoading(true);
@@ -104,7 +119,7 @@ export const ReviewProvider = ({ children }) => {
   };
 
   return (
-    <ReviewContext.Provider value={{ reviews, fetchReviews, addReview, deleteReview, editReview, loading, error, showForm, setShowForm, resetState }}>
+    <ReviewContext.Provider value={{ reviews, fetchReviews, addReview, deleteReview, editReview, fetchMyReviews, loading, error, showForm, setShowForm, resetState }}>
       {children}
     </ReviewContext.Provider>
   );

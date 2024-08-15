@@ -21,7 +21,6 @@ const StarRating = ({ field, form }) => {
 
   const renderStar = (index) => {
     const starValue = index + 1;
-    // Determine the star to display based on hover or rating
     const valueToDisplay = hovered !== null ? hovered : rating;
 
     return valueToDisplay >= starValue ? (

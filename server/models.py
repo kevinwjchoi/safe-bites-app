@@ -274,13 +274,13 @@ class Review(db.Model, SerializerMixin):
     __tablename__ = 'reviews'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    recipe_id = db.Column(db.Ineger, db.ForeignKey('recipes.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
     title = db.Column(db.String, nullable=False)
     comment = db.Column(db.Text, nullable=False)
     rating = db.Column(db.Float, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)    
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow, nullable=False) 
 
     @validates('title')
     def validate_title(self, key, title):
@@ -308,6 +308,7 @@ class Review(db.Model, SerializerMixin):
     def to_dict(self):
         return {
             'id': self.id,
+            'user_id': self.user_id,
             'recipe_id': self.recipe_id,
             'title': self.title,
             'comment': self.comment,

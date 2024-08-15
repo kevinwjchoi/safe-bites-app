@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Container, Typography, Card, CardContent, Snackbar, List, ListItem, ListItemText, Divider } from '@mui/material';
 import { useUserState } from '../UserContext';
 import { useReviewContext } from '../ReviewContext';
@@ -6,6 +6,8 @@ import UpdateProfileInfoForm from '../components/UpdateProfileInfoForm';
 import ChangePasswordForm from '../components/ChangePasswordForm';
 import RecipeReviewEditForm from '../components/RecipeReviewEditForm';
 import RecipeReviewCard from '../components/RecipeReviewCard';
+// import { RestaurantCarousel } from '../components/RestaurantCarousel';
+
 import '../index.css';
 
 const Profile = () => {
@@ -14,65 +16,168 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
-    const { reviews, fetchReviews, addReview, deleteReview, editReview, loading: reviewLoading, error: reviewError } = useReviewContext();
-
+    const [editReviewData, setEditReviewData] = useState(null);
+    const [passwordChangeError, setPasswordChangeError] = useState('');
+    const { reviews, fetchMyReviews, deleteReview, editReview, loading: reviewLoading, error: reviewError } = useReviewContext();
+    
+    const reviewsFetched = useRef(false);
 
     useEffect(() => {
-        const fetchUser = async () => {
-            setLoading(false);
-        };
-        fetchUser();
-    }, []);
+        if (user && !reviewsFetched.current) {
+            const fetchUserReviews = async () => {
+                try {
+                    await fetchMyReviews();
+                    reviewsFetched.current = true;
+                } catch (error) {
+                    console.error('Error fetching reviews:', error);
+                }
+            };
+            fetchUserReviews();
+        }
+        setLoading(false);
+    }, [user, fetchMyReviews]);
 
     const handleSnackbarClose = () => {
         setSnackbarOpen(false);
     };
 
-
     const handleProfileUpdate = async (values) => {
-
         try {
-            // Simulate an API call or update logic
-            console.log('Updated profile with values:', values);
-            // Show success message
-            setSnackbarMessage('Profile updated successfully!');
+            const requestData = {
+                new_username: values.username,
+                new_email: values.email,
+                diet: values.diet,
+                intolerance: values.intolerance,
+                cuisine: values.cuisine
+            };
+    
+            const response = await fetch('/update_profile', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(requestData),
+                credentials: 'include' 
+            });
+    
+            const result = await response.json();
+    
+            if (response.ok) {
+                setSnackbarMessage('Profile updated successfully!');
+            } else {
+                setSnackbarMessage(`Error: ${result.error}`);
+            }
         } catch (error) {
             console.error('Error updating profile:', error);
-            // Show error message
             setSnackbarMessage('Failed to update profile.');
         }
         setSnackbarOpen(true);
     };
-
     
+    const handlePasswordChange = async (currentPassword, newPassword) => {
+        try {
+            const response = await fetch('/update_password', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    oldPassword: currentPassword,
+                    newPassword: newPassword
+                }),
+                credentials: 'include'
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                setSnackbarMessage('Password changed successfully!');
+                setPasswordChangeError('');
+                setSelectedSection('Personal Info'); // Optional: Navigate back to personal info section
+            } else {
+                setPasswordChangeError(result.error || 'Failed to change password.');
+            }
+        } catch (error) {
+            console.error('Error changing password:', error);
+            setPasswordChangeError('Failed to change password.');
+        }
+        setSnackbarOpen(true);
+    };
+
+
+    const handleEditReview = (review) => {
+        setEditReviewData(review);
+    };
+
+    const handleEditReviewSave = async (updatedReview) => {
+        try {
+            await editReview(editReviewData.id, updatedReview);
+            setEditReviewData(null);
+            await fetchMyReviews(); 
+        } catch (error) {
+            console.error('Error editing review:', error.message);
+        }
+    };
+
+    const handleEditReviewCancel = () => {
+        setEditReviewData(null);
+    };
 
     const renderContent = () => {
         switch (selectedSection) {
             case 'Personal Info':
                 return <UpdateProfileInfoForm
-                onSubmit={handleProfileUpdate}
-                initialValues={{
-                  username: user.username,
-                  email: user.email,
-                  diet: user.diet || [],
-                  intolerance: user.intolerance || [],
-                  cuisine: user.cuisine || []
-                }}
-              />;
-            case 'Change Password':
-                return <ChangePasswordForm onClose={() => setSelectedSection('Change Password')} />;
-            case 'Saved Recipes':
+                    onSubmit={handleProfileUpdate}
+                    initialValues={{
+                        username: user.username,
+                        email: user.email,
+                        diet: user.diet || [],
+                        intolerance: user.intolerance || [],
+                        cuisine: user.cuisine || []
+                    }}
+                />;
+                case 'Change Password':
+                    return <ChangePasswordForm 
+                        onClose={() => setSelectedSection('Personal Info')} 
+                        onChangePassword={handlePasswordChange} 
+                    />;
+            case 'Saved Restaurants':
                 return (
                     <>
-                        <Typography variant="h4" gutterBottom>Saved Recipes</Typography>
-                        {/* Implement saved recipes content here */}
+                        <Typography variant="h4" gutterBottom>Saved Restaurants</Typography>
+                        {/* Implement saved restaurants content here */}
                     </>
                 );
             case 'Reviews':
                 return (
                     <>
-                        <Typography variant="h4" gutterBottom>Reviews</Typography>
-                        {/* Implement reviews content here */}
+                        <Typography variant="h4" gutterBottom>My Reviews</Typography>
+                        {reviewLoading ? (
+                            <div>Loading reviews...</div>
+                        ) : reviewError ? (
+                            <Typography color="error">{reviewError}</Typography>
+                        ) : reviews.length === 0 ? (
+                            <Typography>No reviews yet.</Typography>
+                        ) : (
+                            reviews.map(review => (
+                                <RecipeReviewCard 
+                                    key={review.id} 
+                                    review={review} 
+                                    onDelete={deleteReview} 
+                                    onEdit={handleEditReview}
+                                    user={user} 
+                                />
+                            ))
+                        )}
+                        {editReviewData && (
+                            <RecipeReviewEditForm
+                                review={editReviewData}
+                                onSave={handleEditReviewSave}
+                                onCancel={handleEditReviewCancel}
+                            />
+                        )}
                     </>
                 );
             default:
@@ -93,7 +198,7 @@ const Profile = () => {
             <Card style={{ minWidth: '250px', marginRight: '2rem' }}>
                 <CardContent>
                     <Typography variant="h6" gutterBottom>
-                        Hi, {user.email}
+                        Hi, {user.username}
                     </Typography>
                     <List>
                         <ListItem button onClick={() => setSelectedSection('Personal Info')}>
@@ -103,9 +208,10 @@ const Profile = () => {
                             <ListItemText primary="Change Password" />
                         </ListItem>
                         <Divider />
-                        <ListItem button onClick={() => setSelectedSection('Saved Recipes')}>
-                            <ListItemText primary="Saved Recipes" />
-                        </ListItem>
+                        {/* Adding favorite restaurants later */}
+                        {/* <ListItem button onClick={() => setSelectedSection('Saved Restaurants')}>
+                            <ListItemText primary="Saved Restaurants" />
+                        </ListItem> */}
                         <ListItem button onClick={() => setSelectedSection('Reviews')}>
                             <ListItemText primary="Reviews" />
                         </ListItem>

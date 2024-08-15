@@ -10,6 +10,7 @@ import logging
 import requests
 import os 
 import json
+import re
 from sqlalchemy.exc import IntegrityError
 
 
@@ -128,19 +129,14 @@ class UpdateProfile(Resource):
         if not user:
             return {'error': 'User not found'}, 404
 
-        if 'new_username' not in data or 'old_password' not in data or 'new_password' not in data or 'new_email' not in data:
-            return {'error': 'Username, old password, new password, and email are required'}, 422
+        if 'new_username' not in data or 'new_email' not in data:
+            return {'error': 'Username and email are required'}, 422
         
         new_username = data['new_username']
-        old_password = data['old_password']
-        new_password = data['new_password']
         new_email = data['new_email']
         new_diet = data.get('diet', [])
         new_intolerance = data.get('intolerance', [])
         new_cuisine = data.get('cuisine', [])
-
-        if not user.authenticate(old_password):
-            return {'error': 'Old password is incorrect'}, 401
 
         if new_username != user.username:
             if User.query.filter_by(username=new_username).first():
@@ -151,11 +147,6 @@ class UpdateProfile(Resource):
             if User.query.filter_by(email=new_email).first():
                 return {'error': 'Email already exists'}, 400
             user.update_email(new_email)
-
-        if new_password:
-            if old_password == new_password:
-                return {'error': 'New password must be different from old password'}, 400
-            user.update_password(new_password)
         
         user.diet_list = new_diet
         user.intolerance_list = new_intolerance
@@ -164,7 +155,45 @@ class UpdateProfile(Resource):
 
         return {'message': 'Profile updated successfully'}, 200
     
+class UpdatePassword(Resource):
+    def patch(self):
+        data = request.get_json()
 
+        if 'user_id' not in session:
+            return {'error': 'User must be logged in'}, 401
+
+        user_id = session['user_id']
+        user = User.query.filter_by(id=user_id).first()
+
+        if not user:
+            return {'error': 'User not found'}, 404
+
+        if 'newPassword' not in data or 'oldPassword' not in data:
+            return {'error': 'New and old passwords are required'}, 422
+
+        old_password = data['oldPassword']
+        new_password = data['newPassword']
+
+        # Check if old password is correct
+        if not user.authenticate(old_password):
+            return {'error': 'Old password is incorrect'}, 401
+
+        # Validate new password (you can add more specific validation if needed)
+        if len(new_password) < 8:
+            return {'error': 'New password must be at least 8 characters long'}, 422
+        if not re.search(r'[A-Z]', new_password):
+            return {'error': 'New password must contain at least one uppercase letter'}, 422
+        if not re.search(r'[a-z]', new_password):
+            return {'error': 'New password must contain at least one lowercase letter'}, 422
+        if not re.search(r'[0-9]', new_password):
+            return {'error': 'New password must contain at least one number'}, 422
+        if not re.search(r'[@$!%*?&#]', new_password):
+            return {'error': 'New password must contain at least one special character (@$!%*?&#)'}, 422
+
+        # Update password
+        user.update_password(new_password)
+
+        return {'message': 'Password updated successfully'}, 200
 
 
 #Recipe routes
@@ -372,10 +401,12 @@ class GetAllMyReviews(Resource):
             )
 
 class CreateReview(Resource):
-    def post(self):
+    def post(self, recipe_id):
         data = request.get_json()
 
-        required_fields = ['recipe_id', 'title', 'comment', 'rating']
+        print(f"Received data: {data}")
+
+        required_fields = ['title', 'comment', 'rating']
         for field in required_fields:
             if field not in data:
                 return {'error': f'{field} is required'}, 422
@@ -384,13 +415,13 @@ class CreateReview(Resource):
             return {'error': 'User must be logged in to submit a review'}, 401
 
         user_id = session['user_id']
-        recipe_id = data.get('recipe_id')
         title = data.get('title')
         comment = data.get('comment')
         rating = data.get('rating')
 
-        if not isinstance(rating, (int, float)) or rating < 0 or rating > 5 or rating % 0.5 != 0:
+        if not isinstance(rating, (int, float)) or rating < 0 or rating > 5 or (round(rating * 2) % 1) != 0:
             return {'error': 'Rating must be a float between 0 and 5, in increments of 0.5'}, 422
+
 
         new_review = Review(
             user_id = user_id,
@@ -408,32 +439,105 @@ class CreateReview(Resource):
 
         return {'message': 'Review created successfully', 'review': new_review.to_dict()}, 201
             
+class EditReview(Resource):
+    def patch(self, id):
+        data = request.get_json()
 
+        if 'user_id' not in session or session['user_id'] is None:
+            return {'error': 'User must be logged in to update a review'}, 401
 
+        review = db.session.get(Review, id)
+        if not review:
+            return {'error': 'Review not found'}, 404
+
+        if review.user_id != session['user_id']:
+            return {'error': 'You are not authorized to update this review'}, 403
+
+        if 'title' in data:
+            review.title = data['title']
+        if 'comment' in data:
+            review.comment = data['comment']
+        if 'rating' in data:
+            rating = data['rating']
+            # Validate rating value
+            if not isinstance(rating, (int, float)) or rating < 0 or rating > 5 or rating % 0.5 != 0:
+                return {'error': 'Rating must be a float between 0 and 5, in increments of 0.5'}, 422
+            review.rating = rating
+
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            return {'error': 'An error occurred while updating the review. Please try again.'}, 500
+
+        return {'message': 'Review updated successfully', 'review': review.to_dict()}, 200
+
+class DeleteReview(Resource):
+    def delete(self, id):
+        if 'user_id' not in session or session['user_id'] is None:
+            return {'error': 'User must be logged in to delete a review'}, 401
+
+        review = db.session.get(Review, id)
+        if not review:
+            return {'error': 'Review not found'}, 404
+
+        if review.user_id != session['user_id']:
+            return {'error': 'You are not authorized to delete this review'}, 403
+
+        try:
+            db.session.delete(review)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            return {'error': 'An error occurred while deleting the review. Please try again.'}, 500
+
+        return {'message': 'Review deleted successfully'}, 200
+
+class RecipeReviews(Resource):
+    def get(self, recipe_id): 
+        if 'user_id' not in session or session['user_id'] is None:
+            return {'error': 'User must be logged in to delete a review'}, 401
+
+        recipe_reviews = Review.query.filter_by(recipe_id=recipe_id).all()
+        if not recipe_reviews:
+            return {'error': 'Not reviews were found'}, 404
+        
+        return make_response(
+            jsonify([reviews.to_dict() for reviews in recipe_reviews]), 200
+        )
 
 
 
 #User API Resources
-api.add_resource(GetUsers, '/users', endpoint='/users')
-api.add_resource(Signup, '/signup', endpoint='/signup')
-api.add_resource(CheckSession, '/check_session', endpoint='/check_session')
-api.add_resource(Login, '/login', endpoint='/login')
+api.add_resource(GetUsers, '/users', endpoint='users')
+api.add_resource(Signup, '/signup', endpoint='signup')
+api.add_resource(CheckSession, '/check_session', endpoint='check_session')
+api.add_resource(Login, '/login', endpoint='login')
 api.add_resource(Logout, '/logout', endpoint='logout')
+api.add_resource(UpdateProfile, '/update_profile', endpoint='update_profile')
+api.add_resource(UpdatePassword, '/update_password', endpoint='update_password')
 
 #Recipe API Resources
-api.add_resource(RecipeSearchResource, '/recipes/search')
-api.add_resource(RecipeListResource, '/recipes_list')
-api.add_resource(RecipeResource, '/recipe')
+api.add_resource(RecipeSearchResource, '/recipes/search', endpoint='recipes/search')
+api.add_resource(RecipeListResource, '/recipes_list', endpoint='recipes_list')
+api.add_resource(RecipeResource, '/recipe', endpoint='recipe')
 
 #Restaurant API Resources 
-api.add_resource(GetRestaurantNearbyResource, '/restaurants/nearby')
-api.add_resource(UpdateRestaurantResource, '/update_restaurant')
-api.add_resource(SaveRestaurantResource, '/save_yelp_restaurant')
-api.add_resource(GetRestaurants, '/get_viewed_restaurants', endpoint='/get_viewed_restaurants')
+api.add_resource(GetRestaurantNearbyResource, '/restaurants/nearby', endpoint='restaurants/nearby')
+api.add_resource(UpdateRestaurantResource, '/update_restaurant', endpoint='update_restaurant')
+api.add_resource(SaveRestaurantResource, '/save_yelp_restaurant', endpoint='save_yelp_restaurant')
+api.add_resource(GetRestaurants, '/get_viewed_restaurants', endpoint='get_viewed_restaurants')
 
 #UserRestaurant Resources
-api.add_resource(FavoriteRestaurantResource, '/favorite_restaurant', endpoint='/favorite_restaurant')
-api.add_resource(GetFavoriteRestaunts, '/get_favorite_restaurants', endpoint='/get_favorite_restaurants')
+api.add_resource(FavoriteRestaurantResource, '/favorite_restaurant', endpoint='favorite_restaurant')
+api.add_resource(GetFavoriteRestaunts, '/get_favorite_restaurants', endpoint='get_favorite_restaurants')
+
+#RecipeReview Resources
+api.add_resource(GetAllMyReviews, '/get_all_my_reviews', endpoint='get_all_my_reviews')
+api.add_resource(CreateReview, '/create_review/recipe/<int:recipe_id>', endpoint='create_review_recipe')
+api.add_resource(EditReview, '/edit_review/recipe/<int:id>', endpoint='edit_review/recipe')
+api.add_resource(DeleteReview, '/delete_review/recipe/<int:id>', endpoint='delete_review/recipe')
+api.add_resource(RecipeReviews, '/recipe_reviews/<int:recipe_id>', endpoint='recipe_reviews')
 
 
 if __name__ == '__main__':

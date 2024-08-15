@@ -22,7 +22,7 @@ const UpdateProfileInfoForm = ({ onSubmit, initialValues }) => (
       initialValues={{
         username: initialValues.username || '',
         email: initialValues.email || '',
-        diet: Array.isArray(initialValues.diet) ? initialValues.diet : [], // Ensure they are arrays
+        diet: Array.isArray(initialValues.diet) ? initialValues.diet : [], 
         intolerance: Array.isArray(initialValues.intolerance) ? initialValues.intolerance : [],
         cuisine: Array.isArray(initialValues.cuisine) ? initialValues.cuisine : []
       }}
