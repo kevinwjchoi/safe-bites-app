@@ -1,10 +1,8 @@
 import React, { createContext, useState, useContext } from 'react';
 import { fetchNearbyRestaurants } from './services/yelpApi';
 
-// Create context
 const RestaurantContext = createContext();
 
-// Create a provider component
 export const RestaurantProvider = ({ children }) => {
   const [restaurants, setRestaurants] = useState([]);
   const [status, setStatus] = useState('idle');

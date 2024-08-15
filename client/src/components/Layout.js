@@ -2,7 +2,7 @@ import React, { useState , useEffect} from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Button, Drawer, List, ListItem, ListItemText, Switch } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useUserState, useUserDispatch } from '../UserContext';  // Import your context hooks
+import { useUserState, useUserDispatch } from '../UserContext'; 
 import BasicRecipeSearchForm from './BasicRecipeSearchForm';
 import '../styles/Layout.css';
 
@@ -10,8 +10,8 @@ const Layout = ({ children, mode, onModeChange }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useUserState();  // Use context to get user state
-  const { setUser } = useUserDispatch();  // Use context to get dispatch functions
+  const { user } = useUserState();  
+  const { setUser } = useUserDispatch();  
 
   const hideAppBarRoutes = ['/login', '/signup'];
 
@@ -72,7 +72,7 @@ const Layout = ({ children, mode, onModeChange }) => {
             <Switch
               checked={mode === 'dark'}
               onChange={onModeChange}
-              sx={{ ml: 2 }} // Add some margin to the left of the switch
+              sx={{ ml: 2 }} 
             />          
           </Toolbar>
         </AppBar>
@@ -84,7 +84,7 @@ const Layout = ({ children, mode, onModeChange }) => {
         onClose={toggleDrawer(false)}
         sx={{
           '& .MuiDrawer-paper': {
-            width: 270, // Set the desired width here
+            width: 270, 
           },
         }}
       >
@@ -107,7 +107,7 @@ const Layout = ({ children, mode, onModeChange }) => {
         </List>
       </Drawer>
 
-      <main style={{ padding: '16px 5% 50px 7%' }}> {/* Top and bottom padding of 16px, left and right padding of 5% */}
+      <main style={{ padding: '16px 5% 50px 7%' }}>
         {children}
       </main>
     </div>

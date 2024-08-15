@@ -2,7 +2,7 @@ import React from 'react';
 import { TextField, Typography, FormControl, IconButton } from '@mui/material';
 import { useRecipeContext } from '../RecipeContext';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import SearchIcon from '@mui/icons-material/Search'; // Import Search icon
+import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 
 const BasicRecipeSearchForm = ({ handleSearch }) => {
@@ -19,7 +19,7 @@ const BasicRecipeSearchForm = ({ handleSearch }) => {
             query: values.query,
         };
         await getRecipes(dataobj);
-        handleSearch(); // Hide form after search
+        handleSearch(); 
         setSubmitting(false);
         navigate('/recipes')
     };

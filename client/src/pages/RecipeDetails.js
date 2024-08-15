@@ -22,10 +22,8 @@ const RecipeDetails = () => {
     const [showReviews, setShowReviews] = useState(false);
     const [editReviewData, setEditReviewData] = useState(null);
 
-    // Ref to track if reviews have been fetched
     const reviewsFetched = useRef(false);
 
-    // Fetch recipe details when component mounts or id changes
     useEffect(() => {
         const fetchDetails = async () => {
             try {
@@ -41,13 +39,12 @@ const RecipeDetails = () => {
         fetchDetails();
     }, [id]);
 
-    // Fetch reviews only when showReviews changes to true and if they haven't been fetched yet
     useEffect(() => {
         if (showReviews && !reviewsFetched.current) {
             const fetchReviewsData = async () => {
                 try {
                     await fetchReviews(id);
-                    reviewsFetched.current = true; // Mark reviews as fetched
+                    reviewsFetched.current = true;
                 } catch (err) {
                     console.error('Error fetching reviews:', err.message);
                 }
@@ -57,7 +54,7 @@ const RecipeDetails = () => {
         }
     }, [showReviews, id, fetchReviews]);
 
-    // Check session when the component mounts
+    
     useEffect(() => {
         const checkUserSession = async () => {
             await checkSession();
@@ -88,7 +85,7 @@ const RecipeDetails = () => {
         try {
             await addReview(id, reviewData);
             handleCloseReviewForm();
-            setShowReviews(true); // Show reviews after adding a new one
+            setShowReviews(true); 
         } catch (error) {
             console.error('Error adding review:', error.message);
         }
@@ -97,7 +94,7 @@ const RecipeDetails = () => {
     const handleDeleteReview = async (reviewId) => {
         try {
             await deleteReview(reviewId);
-            setShowReviews(true); // Refresh reviews after deletion
+            setShowReviews(true); 
         } catch (error) {
             console.error('Error deleting review:', error.message);
         }
@@ -111,7 +108,7 @@ const RecipeDetails = () => {
         try {
             await editReview(editReviewData.id, updatedReview);
             setEditReviewData(null);
-            setShowReviews(true); // Refresh reviews after editing
+            setShowReviews(true); 
         } catch (error) {
             console.error('Error editing review:', error.message);
         }

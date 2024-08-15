@@ -29,7 +29,7 @@ const Recipes = () => {
       <Typography 
         variant="h4" 
         gutterBottom 
-        sx={{ color: theme.palette.text.primary }} // Use theme color
+        sx={{ color: theme.palette.text.primary }} 
       >
         Recipes
       </Typography>

@@ -25,7 +25,7 @@ export const handleViewDetails = async (id, checkSession, user, navigate) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...restaurant, user_id: user.id }),  // Include user ID to track who saved it
+        body: JSON.stringify({ ...restaurant, user_id: user.id }),  
       });
   
       if (saveResponse.ok) {
@@ -34,7 +34,6 @@ export const handleViewDetails = async (id, checkSession, user, navigate) => {
         console.error('Failed to save restaurant:', await saveResponse.text());
       }
   
-      // Navigate to the restaurant details page with the restaurant data
       navigate(`/restaurant/${id}`, { state: { restaurant } });
     } catch (error) {
       console.error('Error:', error);

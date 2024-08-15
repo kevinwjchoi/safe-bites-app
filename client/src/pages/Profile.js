@@ -95,7 +95,7 @@ const Profile = () => {
             if (response.ok) {
                 setSnackbarMessage('Password changed successfully!');
                 setPasswordChangeError('');
-                setSelectedSection('Personal Info'); // Optional: Navigate back to personal info section
+                setSelectedSection('Personal Info'); 
             } else {
                 setPasswordChangeError(result.error || 'Failed to change password.');
             }

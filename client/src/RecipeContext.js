@@ -7,15 +7,15 @@ export const RecipeProvider = ({ children }) => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showForm, setShowForm] = useState(true); // Manage the visibility of the search form
+  const [showForm, setShowForm] = useState(true); 
 
   const getRecipes = async (dataobj) => {
     setLoading(true);
     setError(null);
     try {
       const fetchedRecipes = await fetchRecipes(dataobj);
-      setRecipes(fetchedRecipes.results); // Ensure this matches your API response
-      setShowForm(false); // Hide the form when recipes are fetched
+      setRecipes(fetchedRecipes.results);
+      setShowForm(false);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -36,7 +36,6 @@ export const RecipeProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use the RecipeContext
 export const useRecipeContext = () => {
   return useContext(RecipeContext);
 };

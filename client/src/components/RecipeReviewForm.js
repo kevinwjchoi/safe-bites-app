@@ -2,7 +2,7 @@ import React from 'react';
 import { TextField, Button, Typography, FormControl } from '@mui/material';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import StarRating from './StarRating'; // Adjust the path as necessary
+import StarRating from './StarRating'; 
 
 
 const initialValues = {
@@ -24,10 +24,9 @@ const validationSchema = Yup.object().shape({
 const RecipeReviewForm = ({ onSubmit, onClose }) => {
 
     const handleSearchSubmit = async (values, { setSubmitting }) => {
-        // Handle form submission logic here
-        await onSubmit(values); // Call the onSubmit prop
+        await onSubmit(values);
         setSubmitting(false);
-        onClose(); // Close the form after submission
+        onClose(); 
     };
 
     return (

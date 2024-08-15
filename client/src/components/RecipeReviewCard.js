@@ -7,7 +7,7 @@ const RecipeReviewCard = ({ review, onDelete, onEdit, user }) => {
     const theme = useTheme();
     const formatDate = (dateString) => {
         const date = new Date(dateString);
-        return date.toLocaleDateString(); // You can customize the format here
+        return date.toLocaleDateString(); 
     };
 
 

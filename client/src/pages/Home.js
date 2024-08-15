@@ -17,7 +17,6 @@ const Home = () => {
         Welcome, {user ? capFirstLetter(user.username) : 'Guest'}
       </Typography>
       
-      {/* Separate Typography components for headings */}
       <Typography variant="h5" component="h2" gutterBottom>
         Glance at your favorite restaurants
       </Typography>

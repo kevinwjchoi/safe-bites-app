@@ -1,14 +1,12 @@
 import React, { createContext, useState, useContext } from 'react';
 
-// Create ReviewContext
 const ReviewContext = createContext();
 
-// Provider component
 export const ReviewProvider = ({ children }) => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showForm, setShowForm] = useState(true); // Manage the visibility of the review form
+  const [showForm, setShowForm] = useState(true); 
 
   const fetchReviews = async (recipeId) => {
     setLoading(true);
@@ -110,8 +108,6 @@ export const ReviewProvider = ({ children }) => {
     }
 };
 
-
-  // Function to reset state
   const resetState = () => {
     setReviews([]);
     setError(null);
@@ -125,7 +121,6 @@ export const ReviewProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use the ReviewContext
 export const useReviewContext = () => {
   return useContext(ReviewContext);
 };

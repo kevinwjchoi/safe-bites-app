@@ -1,15 +1,13 @@
 import React, { createContext, useState, useContext } from 'react';
 
-// Create context
 const UserContext = createContext();
 const UserDispatchContext = createContext();
 
-// Create a provider component
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState(null);
-  const [sessionChecked, setSessionChecked] = useState(false); // Track if session has been checked
+  const [sessionChecked, setSessionChecked] = useState(false); 
 
   // Function to check user session
   const checkSession = async () => {
@@ -22,17 +20,17 @@ export const UserProvider = ({ children }) => {
       if (response.ok) {
         setUser(data);
         setStatus('succeeded');
-        setSessionChecked(true); // Mark session as checked
-        return true; // Return true if authenticated
+        setSessionChecked(true); 
+        return true; 
       } else {
         setError(data.error);
         setStatus('failed');
-        return false; // Return false if not authenticated
+        return false; 
       }
     } catch (error) {
       setError(error.message);
       setStatus('failed');
-      return false; // Return false if there was an error
+      return false; 
     }
   };
 
