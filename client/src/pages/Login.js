@@ -40,15 +40,15 @@ const Login = () => {
       justifyContent="center"
       alignItems="center"
       minHeight="100vh"
-      sx={{ gap: 2 }} // Adjust gap between image and login container
+      sx={{ gap: 2 }} 
     >
       <Box
         sx={{
-          display: { xs: 'none', md: 'block' }, // Hide image on smaller screens
-          width: '40%', // Adjust width as needed
+          display: { xs: 'none', md: 'block' }, 
+          width: '40%', 
           textAlign: 'center',
           padding: 2,
-          marginRight: 1, // Adjust margin to reduce space between image and form
+          marginRight: 1, 
         }}
       >
         <img src={logo} alt="Safe Bites Logo" style={{ maxWidth: '100%', height: 'auto' }} />
